@@ -3,7 +3,7 @@
   python -I -m conn01.run_analysis --conn-root /mnt/h/bio-data/ds005237/conn01 \
       --ctq PHENO/ctq01.tsv --demos PHENO/demos.tsv --out results01.json \
       --id-col <col> --age-col <col> --sex-col <col> [--site-col <col>] \
-      [--group-col <col>] [--fd-rule filtered|unfiltered]
+      [--group-col <col>] [--fd-rule lowpass|unfiltered|bandstop|lowpass_strict]
 
 Column names in the phenotype tables were not read when this was written
 (the hard rule kept phenotype contents unopened); they are arguments. If a
@@ -13,11 +13,11 @@ BIDS sidecars is used as site. The results JSON holds the primary and
 secondary tests (Holm across both) and the exploratory sensitivity
 analyses, labelled as exploratory.
 
-FD rule (prereg 01 deviation 5): censoring and run exclusion use the
-respiration-filtered FD by default. --fd-rule unfiltered runs the main table
-under the original rule instead. Either way the sensitivity list holds the
-other rule ("fd_rule_unfiltered" or "fd_rule_filtered") with its sample size,
-which is the pre-registered sensitivity analysis of deviation 5.
+FD rule (prereg 01 deviation 5a): censoring, run exclusion and the mean-FD
+covariate use the 0.1 Hz low-pass rule by default. --fd-rule selects another
+rule for the main table. The sensitivity list always holds every rule not
+used for the main table ("fd_rule_<name>"), each with the sample it leaves
+(n), which are the sensitivity analyses of deviation 5a.
 """
 from __future__ import annotations
 
@@ -86,13 +86,12 @@ CATEGORICAL = ["sex", "site"]
 
 def sensitivity(a: argparse.Namespace, df: pd.DataFrame) -> list[dict]:
     """The five prereg sensitivity analyses plus the deviation 1 aCompCor one
-    and the deviation 5 FD rule one (the rule not used for the main table)."""
+    and the deviation 5a FD rules (every rule not used for the main table)."""
     res = []
-    other = (dn.RULE_UNFILTERED if a.fd_rule == dn.RULE_FILTERED
-             else dn.RULE_FILTERED)
-    odf = assemble(a, rule=other)
-    res += _tag(f"fd_rule_{other}", an.primary_and_secondary(
-        odf, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL))
+    for other in (r for r in dn.RULES if r != a.fd_rule):
+        odf = assemble(a, rule=other)
+        res += _tag(f"fd_rule_{other}", an.primary_and_secondary(
+            odf, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL))
     gdf = assemble(a, gsr=True)
     res += _tag("gsr", an.primary_and_secondary(gdf, PRIMARY_Z, SECONDARY_Z,
                                                 NUMERIC, CATEGORICAL))
@@ -133,10 +132,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sex-col", required=True)
     ap.add_argument("--site-col")
     ap.add_argument("--group-col")
-    ap.add_argument("--fd-rule", choices=dn.RULES, default=dn.RULE_FILTERED,
+    ap.add_argument("--fd-rule", choices=dn.RULES, default=dn.PRIMARY_RULE,
                     help="censoring/exclusion FD rule for the main table "
-                         "(deviation 5: filtered is primary, unfiltered is the "
-                         "original rule)")
+                         "(deviation 5a: lowpass is primary; unfiltered, "
+                         "bandstop and lowpass_strict are sensitivity rules)")
     ap.add_argument("--compcor-full-only", action="store_true",
                     help="deviation 1 sensitivity as the main table: keep only "
                          "participants with 5 aCompCor components per mask")

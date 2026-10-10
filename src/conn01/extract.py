@@ -5,7 +5,7 @@ Usage (inside the conn01 venv, run with python -I):
       --participant NDARINV... --out OUTROOT
   python -I -m conn01.extract --requalify --participant NDARINV... --out OUTROOT
 
---requalify recomputes the motion QC (FD rules of prereg 01 deviation 5)
+--requalify recomputes the motion QC (FD rules of prereg 01 deviation 5a)
 from the confounds copies already in OUTROOT/sub-<label>/, with the TR stored
 in the existing QC JSON, after the fMRIPrep derivatives were cleaned up. It
 reads no time series and keeps the other QC fields as they were.
@@ -14,8 +14,8 @@ For each resting-state run it writes, under OUTROOT/sub-<label>/:
   <run>_timeseries.tsv                       region means, one column per region
   <run>_desc-confounds_timeseries.tsv/.json  copied from fMRIPrep
   sub-<label>_qc.json                        per-run QC and provenance
-Per run the QC holds motion QC under the filtered (primary) and unfiltered
-(original) FD rules and "roi_signal": tSNR and coverage per region on the
+Per run the QC holds motion QC under the primary (0.1 Hz low-pass) FD rule
+and every sensitivity rule of prereg 01 deviation 5a (conn01.fdrules), and "roi_signal": tSNR and coverage per region on the
 minimally processed BOLD (record only, conn01.roi_signal).
 No connectivity value is computed or printed here.
 """
@@ -99,8 +99,8 @@ def run_record(stem: str, conf: pd.DataFrame, meta: dict, n_ts: int | None,
                tr: float) -> dict:
     """QC numbers for one run; no connectivity values.
 
-    Motion QC is recorded under both FD rules; the unprefixed fields
-    (n_censored, mean_fd, usable, reason) are the primary filtered rule.
+    Motion QC is recorded under every FD rule (fd_rules); the top-level
+    fields (n_censored, mean_fd, usable, reason) are the primary rule.
     n_ts None skips the row check (requalify, time series not read).
     """
     if n_ts is not None and len(conf) != n_ts:
@@ -109,7 +109,7 @@ def run_record(stem: str, conf: pd.DataFrame, meta: dict, n_ts: int | None,
     n_csf = len(dn.compcor_columns(meta, "CSF", n=10**6))
     used = dn.compcor_counts(meta)
     nss = [c for c in conf.columns if c.startswith("non_steady_state")]
-    return {"run": stem, **dn.run_qc_both(conf, tr), "n_acompcor_wm_retained": n_wm,
+    return {"run": stem, **dn.run_qc_all(conf, tr), "n_acompcor_wm_retained": n_wm,
             "n_acompcor_csf_retained": n_csf, "n_acompcor_wm_used": used["WM"],
             "n_acompcor_csf_used": used["CSF"], "n_non_steady_state": len(nss)}
 
@@ -152,13 +152,15 @@ def write_qc(out: Path, label: str, records: list[dict], fmriprep_dir: Path,
 def write_qc_json(out: Path, label: str, records: list[dict], generated,
                   sdc: dict | None) -> None:
     usable = sum(r["usable"] for r in records)
-    usable_u = sum(r["usable_unfiltered"] for r in records)
+    by_rule = {rule: sum(r["fd_rules"][rule]["usable"] for r in records)
+               for rule in dn.RULES}
     qc = {"participant": f"sub-{label}", "fmriprep_generated_by": generated,
-          "n_runs": len(records), "fd_rule": dn.RULE_FILTERED,
+          "n_runs": len(records), "fd_rule": dn.PRIMARY_RULE,
           "n_usable_runs": usable,
           "meets_min_usable_runs": usable >= dn.MIN_USABLE_RUNS,
-          "n_usable_runs_unfiltered": usable_u,
-          "meets_min_usable_runs_unfiltered": usable_u >= dn.MIN_USABLE_RUNS,
+          "n_usable_runs_by_rule": by_rule,
+          "meets_min_usable_runs_by_rule": {
+              k: v >= dn.MIN_USABLE_RUNS for k, v in by_rule.items()},
           "acompcor_min_used": {
               "WM": min((r["n_acompcor_wm_used"] for r in records), default=0),
               "CSF": min((r["n_acompcor_csf_used"] for r in records), default=0)},

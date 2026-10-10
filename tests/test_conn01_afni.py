@@ -235,8 +235,8 @@ def test_afni_outputs_run_through_extract_and_participant_unchanged(tmp_path, mo
     qc = json.loads((out / "sub-AFN01_qc.json").read_text())
     assert set(qc) == {"participant", "fmriprep_generated_by", "n_runs", "n_usable_runs",
                        "meets_min_usable_runs", "acompcor_min_used", "sdc", "regions", "runs",
-                       "fd_rule", "n_usable_runs_unfiltered",
-                       "meets_min_usable_runs_unfiltered"}
+                       "fd_rule", "n_usable_runs_by_rule",
+                       "meets_min_usable_runs_by_rule"}
     assert qc["fmriprep_generated_by"][0]["Name"] == "AFNI"
     assert qc["acompcor_min_used"]["WM"] >= 1 and qc["acompcor_min_used"]["CSF"] >= 1
     assert set(qc["runs"][0]) >= {"run", "n_volumes", "n_censored", "mean_fd", "usable",

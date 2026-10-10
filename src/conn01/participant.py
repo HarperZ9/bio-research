@@ -5,10 +5,11 @@ Reads the per-run files that extract.py writes:
   <sub>_<run>_desc-confounds_timeseries.tsv / .json   fMRIPrep confounds
   <sub>_qc.json                       per-run TR (tr_s, or scanner.RepetitionTime)
 
-Censoring and run exclusion follow the FD rule passed in: "filtered" (prereg
-01 deviation 5, the primary rule) or "unfiltered" (the original rule, the
-pre-registered sensitivity analysis). The mean FD covariate stays fMRIPrep's
-unfiltered framewise_displacement over usable runs under both rules.
+Censoring and run exclusion follow the FD rule passed in (conn01.fdrules):
+"lowpass" is the primary rule of deviation 5a; "unfiltered", "bandstop" and
+"lowpass_strict" are its sensitivity analyses. The mean-FD covariate is the
+rule's FD pooled over the defined frames of usable runs (deviation 5a: the
+low-pass FD for the primary rule; fMRIPrep's column for "unfiltered").
 """
 from __future__ import annotations
 
@@ -29,7 +30,7 @@ ALL_PAIRS = [PRIMARY, SECONDARY] + LATERAL
 
 
 def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
-                   gsr: bool = False, rule: str = dn.RULE_FILTERED) -> dict:
+                   gsr: bool = False, rule: str = dn.PRIMARY_RULE) -> dict:
     """Combine runs given as (timeseries, confounds, confounds_json) tuples.
 
     Returns a dict with per-pair mean z over usable runs, mean FD over usable
@@ -37,7 +38,7 @@ def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
     volumes in usable runs), run counts, an inclusion flag, and the smallest
     aCompCor count used per mask over usable runs (deviation 1).
     """
-    trs = [motion.repetition_time(m) if rule == dn.RULE_FILTERED else None
+    trs = [motion.repetition_time(m) if rule != dn.RULE_UNFILTERED else None
            for _, _, m in runs]
     qcs = [dn.run_qc(c, tr, rule) for (_, c, _), tr in zip(runs, trs)]
     usable = [i for i, q in enumerate(qcs) if q.usable]
@@ -47,10 +48,8 @@ def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
     if not usable:
         out.update(mean_fd=float("nan"), n_retained=0)
         return out
-    fds = np.concatenate([
-        runs[i][1]["framewise_displacement"].to_numpy(float) for i in usable
-    ])
-    out["mean_fd"] = float(np.nanmean(fds))
+    out["mean_fd"] = pooled_mean_fd([runs[i][1] for i in usable],
+                                    [trs[i] for i in usable], rule)
     out["n_retained"] = int(sum(qcs[i].n_volumes - qcs[i].n_censored for i in usable))
     counts = [dn.compcor_counts(runs[i][2]) for i in usable]
     out["n_compcor_wm_min"] = min(c["WM"] for c in counts)
@@ -63,6 +62,16 @@ def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
     for key in per_run[0]:
         out[f"z__{key}"] = float(np.mean([r[key] for r in per_run]))
     return out
+
+
+def pooled_mean_fd(confs: list[pd.DataFrame], trs: list[float | None],
+                   rule: str) -> float:
+    """Mean of the rule's FD over all defined frames of the given runs."""
+    if rule == dn.RULE_UNFILTERED:
+        fds = [c["framewise_displacement"].to_numpy(float) for c in confs]
+    else:
+        fds = [dn.fd_series(c, tr, rule)[1:] for c, tr in zip(confs, trs)]
+    return float(np.nanmean(np.concatenate(fds)))
 
 
 def load_subject_runs(sub_dir: Path) -> list[tuple[pd.DataFrame, pd.DataFrame, dict]]:
@@ -99,7 +108,7 @@ def qc_repetition_times(sub_dir: Path) -> dict[str, float]:
 
 
 def build_outcome_table(root: Path, gsr: bool = False,
-                        rule: str = dn.RULE_FILTERED) -> pd.DataFrame:
+                        rule: str = dn.PRIMARY_RULE) -> pd.DataFrame:
     """One row per participant directory under root that has a DONE marker."""
     rows = []
     for sub_dir in sorted(Path(root).glob("sub-*")):

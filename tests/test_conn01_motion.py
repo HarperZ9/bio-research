@@ -1,25 +1,28 @@
-"""Respiration-filtered FD (prereg 01 deviation 5) on synthetic motion traces."""
+"""Filtered FD rules (prereg 01 deviations 5 and 5a) on synthetic motion traces."""
 import json
 
 import numpy as np
 import pandas as pd
 import pytest
+from scipy.signal import butter, filtfilt
 
+import conn01_synth as syn
 from conn01 import denoise as dn
 from conn01 import extract, motion
+from conn01 import participant as pt
 
 TR = 0.8
 T = 488  # volumes per run in ds005237
-EDGE = 10  # filtfilt edge transient: a few volumes at each run end may exceed 0.2
+EDGE = 10
 
 
 def _trace(t=T, tr=TR, resp_hz=0.35, resp_mm=0.4, drift_mm=0.5, jerk_at=None,
-           jerk_mm=1.5, seed=0):
+           jerk_mm=1.5, phase=0.0, seed=0):
     """Six motion parameters: breathing on trans_y, slow drift on trans_z."""
     rng = np.random.default_rng(seed)
     time = np.arange(t) * tr
     m = np.zeros((t, 6))
-    m[:, 1] = resp_mm * np.sin(2 * np.pi * resp_hz * time)
+    m[:, 1] = 0.8 + resp_mm * np.sin(2 * np.pi * resp_hz * time + phase)
     m[:, 2] = drift_mm * time / time[-1]
     m += rng.normal(0, 1e-6, m.shape)
     if jerk_at is not None:
@@ -41,55 +44,117 @@ def test_power_fd_uses_50_mm_radius_for_rotations():
     assert motion.power_fd(m).tolist() == pytest.approx([0.0, 0.1, 0.2])
 
 
-def test_pure_respiration_gives_near_zero_filtered_fd_and_large_raw_fd():
-    m = _trace()
+# Primary rule: 0.1 Hz low-pass (deviation 5a)
+
+@pytest.mark.parametrize("hz", [0.35, 0.2])
+def test_planted_respiration_vanishes_under_the_lowpass(hz):
+    m = _trace(resp_hz=hz)
     raw = motion.power_fd(m)
-    filt = motion.power_fd(motion.bandstop(m, TR))
-    assert raw[1:].mean() > 0.35  # fails the original 0.3 mm mean rule
-    assert np.mean(raw > dn.FD_CENSOR_MM) > 0.2  # and the 20% censoring rule
-    assert filt[1:].mean() < 0.02  # drift step is 0.5 mm / 487 volumes, about 0.001
-    inner = filt[EDGE:-EDGE]
-    assert inner.mean() < 0.005 and inner.max() < 0.1  # ringing decays inward
-    cens = np.flatnonzero(filt > dn.FD_CENSOR_FILTERED_MM)
-    assert len(cens) <= 6 and all(i < EDGE or i >= T - EDGE for i in cens)
+    low = motion.lowpass_fd(_confounds(m), TR)
+    assert raw[1:].mean() > 0.2  # raw FD sees large motion
+    assert not (low > dn.CENSOR_MM[dn.RULE_LOWPASS]).any()  # nothing censored
+    assert low[1:].mean() < 0.25 * raw[1:].mean()
+    q = dn.run_qc(_confounds(m), TR)
+    assert q.usable and q.n_censored == 0
+    if hz == 0.35:  # the first participant's case: the original rule fails it
+        assert not dn.run_qc(_confounds(m), TR, dn.RULE_UNFILTERED).usable
 
 
-def test_sudden_jerk_is_still_censored_after_filtering():
+def test_step_jerk_is_still_censored_under_the_lowpass():
+    jerk = 200
+    conf = _confounds(_trace(jerk_at=jerk))
+    keep = dn.keep_mask(conf, TR)
+    cens = np.flatnonzero(~keep)
+    assert not keep[jerk] and len(cens) >= 5
+    assert all(abs(i - jerk) <= 10 for i in cens)
+    assert dn.run_qc(conf, TR).usable
+
+
+def test_segments_shorter_than_5_frames_are_censored():
+    keep = np.array([0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1], bool)
+    out = dn.drop_short_segments(keep, 5)
+    assert out.tolist() == [False] * 6 + [True] * 5 + [False, False]
+    # Through the rule: two spikes 4 frames apart also censor the 3 between.
+    m = _trace(resp_mm=0.0, drift_mm=0.0)
+    m[100:, 0] += 1.0
+    m[104:, 0] += 1.0
+    conf = _confounds(m)
+    fd = dn.fd_series(conf, TR)
+    thresh_only = dn.censor_mask(fd, dn.CENSOR_MM[dn.RULE_LOWPASS])
+    keep = dn.keep_mask(conf, TR)
+    assert (~keep).sum() >= (~thresh_only).sum()
+    assert not keep[thresh_only.argmin():len(keep) - thresh_only[::-1].argmin()].any()
+    segs = np.diff(np.concatenate([[0], keep.astype(int), [0]]))
+    lengths = np.flatnonzero(segs == -1) - np.flatnonzero(segs == 1)
+    assert lengths.min() >= 5
+    # The original and band-stop rules have no segment rule.
+    assert dn.MIN_SEGMENT[dn.RULE_UNFILTERED] == dn.MIN_SEGMENT[dn.RULE_BANDSTOP] == 0
+
+
+@pytest.mark.parametrize("phase", [0.0, 0.7, 1.9])
+def test_mirrored_padding_removes_the_end_of_run_artifact(phase):
+    m = _trace(drift_mm=0.0, phase=phase)
+    low = motion.power_fd(motion.lowpass(m, TR))
+    inner = low[EDGE:-EDGE].max()
+    assert max(low[1:EDGE].max(), low[-EDGE:].max()) <= inner + 0.02
+    assert low.max() < dn.CENSOR_MM[dn.RULE_LOWPASS_STRICT]
+    # The same filter with scipy's default odd padding has the artifact.
+    b, a = butter(1, 0.1 / (0.5 / TR), btype="low")
+    odd = motion.power_fd(filtfilt(b, a, m, axis=0))
+    if phase == 1.9:
+        assert max(odd[1:EDGE].max(), odd[-EDGE:].max()) > dn.CENSOR_MM[dn.RULE_LOWPASS]
+
+
+def test_lowpass_respects_tr():
+    m = _trace(drift_mm=0.0)
+    # Same samples read as TR 4 s are 0.07 Hz, below the cutoff: they survive.
+    right = motion.power_fd(motion.lowpass(m, 0.8))[1:].mean()
+    wrong = motion.power_fd(motion.lowpass(m, 4.0))[1:].mean()
+    assert right < 0.05 and wrong > 4 * right
+    with pytest.raises(ValueError):
+        motion.lowpass(m, 6.0)  # Nyquist 0.083 Hz is below the 0.1 Hz cutoff
+    with pytest.raises(ValueError):
+        dn.fd_series(_confounds(m), None, dn.RULE_LOWPASS)
+
+
+def test_mean_fd_covariate_is_lowpass_fd_over_usable_runs():
+    rng = np.random.default_rng(3)
+    runs = []
+    for _ in range(2):
+        conf, meta = syn.confounds(300, rng)
+        runs.append((syn.regions(conf, rng, 0.3), conf, meta))
+    s = pt.summarize_runs(runs)
+    fds = np.concatenate([dn.fd_series(c, m["RepetitionTime"])[1:] for _, c, m in runs])
+    assert s["mean_fd"] == pytest.approx(fds.mean())
+    col = np.concatenate([c["framewise_displacement"].to_numpy() for _, c, _ in runs])
+    assert s["mean_fd"] != pytest.approx(np.nanmean(col))
+
+
+# Sensitivity rule: band-stop (deviation 5)
+
+def test_bandstop_removes_035_hz_and_keeps_a_jerk():
     jerk = 200
     m = _trace(jerk_at=jerk)
-    conf = _confounds(m)
-    keep = dn.keep_mask(conf, TR, dn.RULE_FILTERED)
-    assert not keep[jerk]  # the step volume is censored
-    inner = np.flatnonzero(~keep[EDGE:-EDGE]) + EDGE
-    assert all(abs(i - jerk) <= 3 for i in inner)  # only the jerk and its ringing
-    q = dn.run_qc(conf, TR)
-    assert q.usable and q.n_censored == (~keep).sum() <= 12
-
-
-def test_filter_respects_tr():
-    # 0.35 Hz at TR 0.8 is 0.28 cycles per sample. Read the same samples as
-    # TR 0.5 and they are 0.56 Hz, outside the stop band: they must survive.
-    m = _trace(drift_mm=0.0)
-    right = motion.power_fd(motion.bandstop(m, 0.8))
-    wrong = motion.power_fd(motion.bandstop(m, 0.5))
-    assert right[EDGE:-EDGE].mean() < 0.005 and wrong[EDGE:-EDGE].mean() > 0.3
-    # A true 0.35 Hz breath sampled at TR 0.5 is removed when TR 0.5 is given.
-    m05 = _trace(tr=0.5, drift_mm=0.0)
-    assert motion.power_fd(motion.bandstop(m05, 0.5))[EDGE:-EDGE].mean() < 0.005
-    # A TR whose Nyquist frequency is below the band cannot use the rule.
+    filt = motion.bandstop_fd(_confounds(_trace()), TR)
+    assert filt[EDGE:-EDGE].mean() < 0.005
+    keep = dn.keep_mask(_confounds(m), TR, dn.RULE_BANDSTOP)
+    assert not keep[jerk]
+    assert all(abs(i - jerk) <= 3 for i in np.flatnonzero(~keep[EDGE:-EDGE]) + EDGE)
     with pytest.raises(ValueError):
-        motion.bandstop(m, 1.5)
-    with pytest.raises(ValueError):
-        dn.fd_series(_confounds(m), None, dn.RULE_FILTERED)
+        motion.bandstop(m, 1.5)  # band above Nyquist
 
 
-def test_qc_records_both_rules_and_breathing_only_run_is_usable_only_filtered():
-    rec = dn.run_qc_both(_confounds(_trace()), TR)
-    assert rec["usable"] and rec["usable_filtered"] and not rec["usable_unfiltered"]
-    assert rec["mean_fd_filtered"] < 0.02 and rec["mean_fd_unfiltered"] > 0.35
-    assert rec["n_censored_filtered"] <= 6 and rec["n_censored_unfiltered"] > 0.2 * T
-    assert rec["tr_s"] == TR and rec["fd_filter"]["band_hz"] == [0.31, 0.43]
-    assert rec["fd_rule"] == "filtered"
+def test_qc_records_every_rule():
+    rec = dn.run_qc_all(_confounds(_trace()), TR)
+    rules = rec["fd_rules"]
+    assert set(rules) == {"lowpass", "unfiltered", "bandstop", "lowpass_strict"}
+    assert rec["fd_rule"] == "lowpass" and rec["usable"] == rules["lowpass"]["usable"]
+    assert rules["lowpass"]["usable"] and not rules["unfiltered"]["usable"]
+    assert rules["unfiltered"]["mean_fd"] > 0.35 > 0.05 > rules["lowpass"]["mean_fd"]
+    assert [rules[r]["censor_threshold_mm"] for r in dn.RULES] == [0.1, 0.5, 0.2, 0.08]
+    assert rules["lowpass"]["filter"]["cutoff_hz"] == 0.1
+    assert rules["bandstop"]["filter"]["band_hz"] == [0.31, 0.43]
+    assert rec["tr_s"] == TR
 
 
 def test_repetition_time_prefers_sidecar_then_confounds_json():
@@ -112,11 +177,11 @@ def test_requalify_recomputes_motion_qc_without_reading_time_series(tmp_path):
     out = tmp_path / "conn01" / f"sub-{label}"
     out.mkdir(parents=True)
     runs = []
-    for k, m in enumerate((_trace(seed=1), _trace(seed=2), _trace(seed=3, resp_mm=0.0,
-                                                                    jerk_at=100)), 1):
+    traces = (_trace(seed=1), _trace(seed=2), _trace(seed=3, resp_mm=0.0, jerk_at=100))
+    for k, m in enumerate(traces, 1):
         stem = f"sub-{label}_task-restAP_run-{k:02d}"
-        conf = _confounds(m)
-        conf.to_csv(out / f"{stem}_desc-confounds_timeseries.tsv", sep="\t", index=False)
+        _confounds(m).to_csv(out / f"{stem}_desc-confounds_timeseries.tsv", sep="\t",
+                             index=False)
         (out / f"{stem}_desc-confounds_timeseries.json").write_text("{}")
         runs.append({"run": stem, "n_volumes": T, "usable": False,
                      "scanner": {"RepetitionTime": TR, "InstitutionName": "S"}})
@@ -127,9 +192,9 @@ def test_requalify_recomputes_motion_qc_without_reading_time_series(tmp_path):
     assert extract.main(["--requalify", "--participant", label,
                          "--out", str(tmp_path / "conn01")]) == 0
     qc = json.loads((out / f"sub-{label}_qc.json").read_text())
-    assert qc["n_usable_runs"] == 3 and qc["meets_min_usable_runs"]
-    assert qc["n_usable_runs_unfiltered"] == 1  # only the run without breathing
-    assert not qc["meets_min_usable_runs_unfiltered"]
+    assert qc["fd_rule"] == "lowpass" and qc["n_usable_runs"] == 3
+    assert qc["n_usable_runs_by_rule"]["unfiltered"] == 1  # only the run without breathing
+    assert not qc["meets_min_usable_runs_by_rule"]["unfiltered"]
     assert qc["sdc"] == {"sdc_path": "syn"}
     r0 = qc["runs"][0]
     assert r0["tr_s"] == TR and r0["scanner"]["InstitutionName"] == "S"
