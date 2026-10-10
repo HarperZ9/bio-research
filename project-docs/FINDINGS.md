@@ -86,3 +86,101 @@ Does not prove.
   by content.
 - OVERREACH means the sentence claims more than this one study measured. It does not
   mean the claim is false. Other studies may support it.
+
+## F-07-1 (2026-10-09). Microtubule-regulator mRNA after chronic social defeat, mouse mPFC: null in discovery
+
+Question. In mouse mPFC, does chronic social defeat shift mRNA of a fixed 32-gene
+microtubule-regulator set (tubulins, MAPs, stathmins, severing enzymes, kinesin-1,
++TIPs, tubulin-modifying enzymes) DOWN, relative to random genes of matched
+expression? Decision informed (brief 07, section 1): whether transcript-level
+microtubule work is worth more effort, or the next step moves to protein and
+phospho-proteomic data.
+
+Receipts.
+- Pre-registration: project-docs/prereg/07-microtubule-screen.md, v1 commit 16b34fd
+  (SHA-256 4ec33fd8...4fef95), v2 commit c936dd6 (SHA-256 b21b3093...fbd1ca), both
+  committed before any expression file was downloaded. Gene set:
+  project-docs/prereg/07-geneset-M.txt (SHA-256 0dd7f70a...4ad3a99). Hash log:
+  project-docs/prereg/07-LOG.md.
+- Data receipts (URLs, bytes, SHA-256): project-docs/prereg/07-DATA.md. Data live under
+  H:\bio-data\screen07, not in the repo.
+- Code: src/screen07/ (Python 3.12, numpy/scipy/pandas). Run from src/:
+  `python -m screen07.run --data H:/bio-data/screen07 --repo C:/dev/bio-research`.
+  Output: project-docs/prereg/07-results/07-results.json, per-set M gene tables, PCA plots.
+- Test: mean moderated t of M vs 10,000 expression-matched random sets (20 bins, seed 7);
+  leave-one-gene-out; 2,000 within-strata label permutations of mean t(M) minus mean t(all).
+
+Result per set (observed). "Null mean" is the mean of the 10,000 random-set statistics.
+
+| Set | n ctrl / defeated | M genes | Set mean t | Null mean (SD) | p DOWN (random sets) | LOO p DOWN range | Permutation p two-sided | Pre-registered criterion |
+|---|---|---|---|---|---|---|---|---|
+| Discovery GSE109315 C57BL/6Crl mPFC | 6 / 12 | 31 | -0.18 | -0.09 (0.19) | 0.31 | 0.19 to 0.43 | 0.51 | p < 0.05: FAIL |
+| Held-out A GSE109315 DBA/2Crl mPFC | 6 / 8 | 31 | -0.58 | -0.37 (0.16) | 0.095 | 0.046 to 0.17 | 0.046 | p < 0.05: FAIL |
+| Held-out B GSE127812 PFC | 3 / 3 | 29 | +0.23 | +0.31 (0.27) | 0.40 | 0.20 to 0.55 | 0.95 | negative sign: FAIL |
+| Held-out C GSE161726 mPFC (fallback) | 4 / 15 | 31 | -0.31 | +0.12 (0.18) | 0.0067 | 0.0023 to 0.019 | 0.42 | p < 0.05: PASS, labeled fragile |
+
+Secondary contrasts in discovery (not decisive): susceptible vs control p DOWN 0.45;
+resilient vs control p DOWN 0.10. No single M gene reached p < 0.01 in any set
+(discovery minimum: Kif5b, t = -2.18, p = 0.043, uncorrected).
+
+Verdict under the pre-registration: NULL. The discovery test failed (p = 0.31), so
+the held-out sets cannot turn this into support. Confidence: high that the
+pre-registered test is null on these data; the screen had low power for small
+shifts (12 vs 6 animals), so "no shift" is not shown.
+
+Positive control (Fkbp5 and Sgk1 up). Discovery: FAIL. Fkbp5 up (log2FC 0.21,
+p = 0.034 one-sided); Sgk1 flat (log2FC -0.01, p = 0.54). Held-out A: fail (both
+flat). Held-out B: Fkbp5 filtered out, Sgk1 up p = 0.026, fail by rule. Held-out C:
+pass (Sgk1 p = 0.028, Fkbp5 positive). As pre-registered, sample labels were
+rechecked first: matrix columns match GEO titles, and group sizes match the series
+design (6/6/6 and 6/8). Per the rule, the discovery M result is also labeled
+"uninterpretable" until the cause is found. Inferred cause, not tested: GSE109315
+collected tissue 6 to 8 days after the last defeat, and Sgk1 is a fast
+glucocorticoid-response gene, so the control was a poor choice for this timing
+(confidence: moderate). Under either label the discovery set gives no support.
+
+Negative control (ribosomal protein genes, 69 to 74 genes). It shifted in all four
+primary sets (two-sided p <= 0.03; down in discovery, B and C, up in A). The
+pre-registration flags this as possible composition bias. A second reading fits
+too: ribosomal genes are tightly co-regulated, and a random-set test that treats
+genes as independent overstates significance for any co-regulated set. Held-out C
+supports this reading: the random-set test gave p = 0.0067 and the label
+permutation, which keeps gene-gene correlation, gave p = 0.42 (inferred, moderate
+confidence). Check-the-check lesson: the pre-registered primary test is
+anticonservative for co-regulated sets. Its nulls are informative; its positives
+need the permutation or a correlation-aware test (camera or rotation) to agree.
+
+Deviations from the pre-registration (all logged, none changed a decision rule):
+1. GSE72343 held only per-contrast DE tables, no per-sample values. The
+   pre-specified fallback GSE161726 mPFC was used for held-out C.
+2. GSE109315 deposited logCPM, not counts (anticipated in v2). Used as deposited;
+   the CPM >= 1 filter became logCPM >= 0. All mPFC samples are on GPL19057, so no
+   platform covariate was needed (brief section 7 concern does not apply to mPFC).
+3. GSE127812 deposited transcript-level RPKM. Summed to gene symbol, then
+   log2(RPKM + 1), filter RPKM >= 1 in 3 samples. The transcript-to-gene sum is a
+   step the pre-registration did not name.
+4. Ensembl IDs in GSE109315 and GSE161726 were mapped to symbols with the GENCODE
+   vM17 GTF (an outside source; GSE161726 used M17, the GSE109315 annotation release
+   is unknown). 64 and 86 IDs did not map.
+5. The permutation statistic (mean t of M minus mean t of all genes) was fixed in
+   code before the first run; the pre-registration did not spell out its form.
+6. GSE161726 file paths name library pools ("Pool1"); pools are not in the GEO
+   metadata, so they were not modeled, as the pre-registration requires.
+7. Ttll6 failed the expression filter in every set; Vash2 and Svbp also failed in
+   GSE127812. The set was not refilled.
+
+Decision. The brief's change trigger fires: deprioritize transcript-level
+microtubule screening in bulk tissue. Next step per brief section 8.10: a
+protein-level source (phospho-proteomics in a stress model) rather than more
+mRNA sets. If a later mRNA screen is run, use a correlation-aware primary test.
+
+Does not prove.
+- mRNA cannot see tau phosphorylation, tubulin modification state or microtubule
+  stability. A null here leaves the stress-to-tau-to-microtubule chain untouched.
+- Bulk tissue mixes neurons, glia and vessels; a neuron-specific or
+  dendrite-local shift can be diluted below detection.
+- Mouse chronic social defeat, males only, one tissue time point per set; not human
+  trauma, not chronic restraint (the model behind the dendrite-atrophy findings).
+- A null with 6 vs 12 animals does not exclude small effects; the held-out C
+  signal is fragile and from low-input libraries with visible PCA outliers (no
+  sample removed).

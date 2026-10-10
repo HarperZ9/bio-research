@@ -1,0 +1,386 @@
+[
+  {
+    "label": "discovery: GSE109315 C57BL/6Crl mPFC, defeated vs control",
+    "dataset": "GSE109315 C57BL/6Crl mPFC",
+    "kind": "logcpm",
+    "n_control": 6,
+    "n_defeated": 12,
+    "subgroups": {
+      "control": 6,
+      "resilient": 6,
+      "susceptible": 6
+    },
+    "covariates": [],
+    "filter_k": 6,
+    "n_genes_tested": 18304,
+    "prior_df": 2.1080249855069972,
+    "notes": [
+      "input is logCPM as deposited (not raw counts); used without renormalization",
+      "symbol mapping: 64 IDs unmapped, 4 rows in duplicated symbols collapsed by max"
+    ],
+    "M_missing": [
+      "Ttll6"
+    ],
+    "primary": {
+      "n_genes": 31,
+      "set_mean_t": -0.18375638179609607,
+      "null_mean": -0.08626217238004318,
+      "null_sd": 0.19309919189863137,
+      "p_down": 0.31456854314568544,
+      "p_up": 0.6855314468553144,
+      "p_two": 0.6291370862913709
+    },
+    "loo": {
+      "set_mean_t_min": -0.2585121775364407,
+      "set_mean_t_max": -0.117129489477268,
+      "p_down_min": 0.1855814418558144,
+      "p_down_max": 0.42745725427457254,
+      "p_two_max": 0.8549145085491451
+    },
+    "permutation": {
+      "stat": -0.18037494488201897,
+      "p_two": 0.5147426286856571,
+      "p_down": 0.25237381309345325,
+      "n_perm": 2000
+    },
+    "positive_control": {
+      "Fkbp5": {
+        "logfc": 0.2138552471450268,
+        "t": 1.9410783914166643,
+        "p_up": 0.033988547444089315
+      },
+      "Sgk1": {
+        "logfc": -0.008212171916802902,
+        "t": -0.10869877003793448,
+        "p_up": 0.5426815631122717
+      },
+      "pass": false
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 74,
+      "set_mean_t": -0.6152155073519241,
+      "null_mean": 0.01007662920239171,
+      "null_sd": 0.1330713344401095,
+      "p_down": 9.999000099990002e-05,
+      "p_up": 1.0,
+      "p_two": 0.00019998000199980003
+    }
+  },
+  {
+    "label": "secondary: GSE109315 C57BL/6Crl susceptible vs control",
+    "dataset": "GSE109315 C57BL/6Crl mPFC",
+    "kind": "logcpm",
+    "n_control": 6,
+    "n_defeated": 6,
+    "subgroups": {
+      "control": 6,
+      "susceptible": 6
+    },
+    "covariates": [],
+    "filter_k": 6,
+    "n_genes_tested": 17923,
+    "prior_df": 2.136260107039906,
+    "notes": [
+      "input is logCPM as deposited (not raw counts); used without renormalization",
+      "symbol mapping: 64 IDs unmapped, 4 rows in duplicated symbols collapsed by max"
+    ],
+    "M_missing": [
+      "Ttll6"
+    ],
+    "primary": {
+      "n_genes": 31,
+      "set_mean_t": -0.2102938624480718,
+      "null_mean": -0.17711334314239868,
+      "null_sd": 0.2798577366339601,
+      "p_down": 0.45325467453254675,
+      "p_up": 0.5468453154684532,
+      "p_two": 0.9065093490650935
+    },
+    "loo": {
+      "set_mean_t_min": -0.3158572582271572,
+      "set_mean_t_max": -0.07516284253904974,
+      "p_down_min": 0.32016798320167983,
+      "p_down_max": 0.6373362663733627,
+      "p_two_max": 0.9989001099890011
+    },
+    "positive_control": {
+      "Fkbp5": {
+        "logfc": 0.3834849357658924,
+        "t": 4.185021649921776,
+        "p_up": 0.0006176252809708358
+      },
+      "Sgk1": {
+        "logfc": -0.110170327405152,
+        "t": -1.4039236605821548,
+        "p_up": 0.9072947416520951
+      },
+      "pass": false
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 73,
+      "set_mean_t": -0.8870306194317857,
+      "null_mean": 0.032554680640815147,
+      "null_sd": 0.18049433584848015,
+      "p_down": 9.999000099990002e-05,
+      "p_up": 1.0,
+      "p_two": 0.00019998000199980003
+    }
+  },
+  {
+    "label": "secondary: GSE109315 C57BL/6Crl resilient vs control",
+    "dataset": "GSE109315 C57BL/6Crl mPFC",
+    "kind": "logcpm",
+    "n_control": 6,
+    "n_defeated": 6,
+    "subgroups": {
+      "control": 6,
+      "resilient": 6
+    },
+    "covariates": [],
+    "filter_k": 6,
+    "n_genes_tested": 17947,
+    "prior_df": 2.177234024737996,
+    "notes": [
+      "input is logCPM as deposited (not raw counts); used without renormalization",
+      "symbol mapping: 64 IDs unmapped, 4 rows in duplicated symbols collapsed by max"
+    ],
+    "M_missing": [
+      "Ttll6"
+    ],
+    "primary": {
+      "n_genes": 31,
+      "set_mean_t": -0.18382136782870537,
+      "null_mean": 0.03252747632492686,
+      "null_sd": 0.17248934046038966,
+      "p_down": 0.1024897510248975,
+      "p_up": 0.8976102389761024,
+      "p_two": 0.204979502049795
+    },
+    "loo": {
+      "set_mean_t_min": -0.2370941007449062,
+      "set_mean_t_max": -0.11180633938811628,
+      "p_down_min": 0.05979402059794021,
+      "p_down_max": 0.20537946205379462,
+      "p_two_max": 0.41075892410758924
+    },
+    "positive_control": {
+      "Fkbp5": {
+        "logfc": 0.04422555852415838,
+        "t": 0.4280773390433459,
+        "p_up": 0.3380342145869969
+      },
+      "Sgk1": {
+        "logfc": 0.09374598357154733,
+        "t": 1.245556453710709,
+        "p_up": 0.11818055257287889
+      },
+      "pass": false
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 74,
+      "set_mean_t": -0.20786186029361292,
+      "null_mean": -0.018246260738737217,
+      "null_sd": 0.13207429110358931,
+      "p_down": 0.0790920907909209,
+      "p_up": 0.921007899210079,
+      "p_two": 0.1581841815818418
+    }
+  },
+  {
+    "label": "held-out A: GSE109315 DBA/2Crl mPFC",
+    "dataset": "GSE109315 DBA/2Crl mPFC",
+    "kind": "logcpm",
+    "n_control": 6,
+    "n_defeated": 8,
+    "subgroups": {
+      "susceptible": 8,
+      "control": 6
+    },
+    "covariates": [],
+    "filter_k": 6,
+    "n_genes_tested": 17964,
+    "prior_df": 2.1488992082743117,
+    "notes": [
+      "input is logCPM as deposited (not raw counts); used without renormalization",
+      "symbol mapping: 64 IDs unmapped, 4 rows in duplicated symbols collapsed by max"
+    ],
+    "M_missing": [
+      "Ttll6"
+    ],
+    "primary": {
+      "n_genes": 31,
+      "set_mean_t": -0.5764543243472108,
+      "null_mean": -0.37230395978228714,
+      "null_sd": 0.15609943931528378,
+      "p_down": 0.0948905109489051,
+      "p_up": 0.9052094790520948,
+      "p_two": 0.1897810218978102
+    },
+    "loo": {
+      "set_mean_t_min": -0.6619471302310443,
+      "set_mean_t_max": -0.5162435992006479,
+      "p_down_min": 0.045795420457954206,
+      "p_down_max": 0.17018298170182983,
+      "p_two_max": 0.34036596340365965
+    },
+    "permutation": {
+      "stat": -0.616767299791898,
+      "p_two": 0.046476761619190406,
+      "p_down": 0.022988505747126436,
+      "n_perm": 2000
+    },
+    "positive_control": {
+      "Fkbp5": {
+        "logfc": -0.04095227456163833,
+        "t": -0.42108466944218587,
+        "p_up": 0.659990136406762
+      },
+      "Sgk1": {
+        "logfc": -0.021859153137184662,
+        "t": -0.43241483585084445,
+        "p_up": 0.6640210778864095
+      },
+      "pass": false
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 74,
+      "set_mean_t": 0.4098943882439023,
+      "null_mean": 0.14851738568687362,
+      "null_sd": 0.11908894391607493,
+      "p_down": 0.9855014498550145,
+      "p_up": 0.014598540145985401,
+      "p_two": 0.029197080291970802
+    }
+  },
+  {
+    "label": "held-out B: GSE127812 PFC",
+    "dataset": "GSE127812 PFC",
+    "kind": "rpkm",
+    "n_control": 3,
+    "n_defeated": 3,
+    "subgroups": {
+      "control": 3,
+      "defeated": 3
+    },
+    "covariates": [],
+    "filter_k": 3,
+    "n_genes_tested": 11211,
+    "prior_df": 1.9204557047263133,
+    "notes": [
+      "input is transcript-level RPKM; summed per gene symbol; log2(RPKM + 1) used, filter RPKM >= 1"
+    ],
+    "M_missing": [
+      "Ttll6",
+      "Vash2",
+      "Svbp"
+    ],
+    "primary": {
+      "n_genes": 29,
+      "set_mean_t": 0.2325643020082025,
+      "null_mean": 0.30760495409330707,
+      "null_sd": 0.266569376004377,
+      "p_down": 0.39536046395360464,
+      "p_up": 0.6047395260473952,
+      "p_two": 0.7907209279072093
+    },
+    "loo": {
+      "set_mean_t_min": 0.0786040837642693,
+      "set_mean_t_max": 0.3316421152622095,
+      "p_down_min": 0.194980501949805,
+      "p_down_max": 0.5478452154784521,
+      "p_two_max": 0.9493050694930507
+    },
+    "permutation": {
+      "stat": -0.006523872348215526,
+      "p_two": 0.9470264867566217,
+      "p_down": 0.4877561219390305,
+      "n_perm": 2000
+    },
+    "positive_control": {
+      "Fkbp5": null,
+      "Sgk1": {
+        "logfc": 0.5497294736326347,
+        "t": 2.4283085694873487,
+        "p_up": 0.025913375197430165
+      },
+      "pass": false
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 69,
+      "set_mean_t": -0.6878629851715695,
+      "null_mean": 0.36775698556636105,
+      "null_sd": 0.1636852045286398,
+      "p_down": 9.999000099990002e-05,
+      "p_up": 1.0,
+      "p_two": 0.00019998000199980003
+    }
+  },
+  {
+    "label": "held-out C: GSE161726 mPFC (fallback)",
+    "dataset": "GSE161726 mPFC",
+    "kind": "counts",
+    "n_control": 4,
+    "n_defeated": 15,
+    "subgroups": {
+      "Indiscriminate-avoiders": 6,
+      "Non-avoiders": 5,
+      "Control": 4,
+      "Discriminating-avoiders": 4
+    },
+    "covariates": [],
+    "filter_k": 4,
+    "n_genes_tested": 18207,
+    "prior_df": 1.5211713738077575,
+    "notes": [
+      "input is raw featureCounts (GENCODE M17 gene IDs)",
+      "symbol mapping: 86 IDs unmapped, 118 rows in duplicated symbols collapsed by sum"
+    ],
+    "M_missing": [
+      "Ttll6"
+    ],
+    "primary": {
+      "n_genes": 31,
+      "set_mean_t": -0.31180973811105667,
+      "null_mean": 0.12141421441408189,
+      "null_sd": 0.17757995665509874,
+      "p_down": 0.0066993300669933005,
+      "p_up": 0.9934006599340066,
+      "p_two": 0.013398660133986601
+    },
+    "loo": {
+      "set_mean_t_min": -0.3805205766002206,
+      "set_mean_t_max": -0.254221735581544,
+      "p_down_min": 0.0022997700229977,
+      "p_down_max": 0.0193980601939806,
+      "p_two_max": 0.0387961203879612
+    },
+    "permutation": {
+      "stat": -0.24013564450510155,
+      "p_two": 0.4177911044477761,
+      "p_down": 0.20889555222388806,
+      "n_perm": 2000
+    },
+    "positive_control": {
+      "Fkbp5": {
+        "logfc": 0.5694167005486056,
+        "t": 0.6637971353407492,
+        "p_up": 0.25749948605673356
+      },
+      "Sgk1": {
+        "logfc": 0.8251404821632667,
+        "t": 2.032383860022341,
+        "p_up": 0.028353758495160242
+      },
+      "pass": true
+    },
+    "negative_control_ribosomal": {
+      "n_genes": 74,
+      "set_mean_t": -1.1448483186481604,
+      "null_mean": 0.14877641776080525,
+      "null_sd": 0.11316767578434067,
+      "p_down": 9.999000099990002e-05,
+      "p_up": 1.0,
+      "p_two": 0.00019998000199980003
+    }
+  }
+]
