@@ -49,12 +49,21 @@ def test_compcor_picks_top_five_per_mask_by_singular_value():
     assert all(meta[c]["Mask"] == "WM" for c in wm)
 
 
-def test_compcor_shortfall_raises_unless_allowed():
+def test_compcor_shortfall_uses_available_components_and_counts_them():
     rng = np.random.default_rng(3)
-    _, meta = syn.confounds(50, rng, n_wm=3)
-    with pytest.raises(dn.CompCorShortfall):
-        dn.compcor_columns(meta, "WM")
-    assert len(dn.compcor_columns(meta, "WM", allow_fewer=True)) == 3
+    conf, meta = syn.confounds(120, rng, n_wm=3)
+    assert len(dn.compcor_columns(meta, "WM")) == 3
+    assert dn.compcor_counts(meta) == {"WM": 3, "CSF": 5}
+    assert dn.design_matrix(conf, meta).shape == (120, 1 + 24 + 3 + 5 + 4)
+
+
+def test_participant_records_smallest_compcor_count_over_usable_runs():
+    rng = np.random.default_rng(10)
+    full = _run(rng)
+    conf, meta = syn.confounds(500, rng, n_csf=2)
+    short = (syn.regions(conf, rng, 0.3), conf, meta)
+    s = pt.summarize_runs([full, short])
+    assert s["included"] and s["n_compcor_wm_min"] == 5 and s["n_compcor_csf_min"] == 2
 
 
 def test_design_has_intercept_24_motion_10_compcor_and_cosines():

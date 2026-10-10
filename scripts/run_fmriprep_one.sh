@@ -13,6 +13,14 @@
 # uses FreeSurfer tools and its docs require the license without
 # exempting --fs-no-reconall), --notrack. KEEP_REPORT=1 keeps the fMRIPrep
 # HTML report and figures for visual QC.
+#
+# Distortion correction (prereg 01 deviation 3): conn01.fmaplink checks each
+# session's spin-echo field maps against its rest runs (opposite
+# phase-encoding pair on the BOLD axis, same geometry). If they match, it
+# writes IntendedFor (and B0FieldSource) into the local sidecars and
+# fMRIPrep uses the field maps. Otherwise this participant gets
+# field-map-less SyN: --use-syn-sdc error --ignore fieldmaps (flag names from
+# the fMRIPrep 25.2 usage page). The choice is stored in the QC JSON "sdc".
 set -euo pipefail
 
 SUB=${1:?usage: run_fmriprep_one.sh SUBLABEL}
@@ -35,6 +43,24 @@ if [ -f "$OUT/sub-$SUB/DONE" ]; then log "already done"; exit 0; fi
 log "fetch"
 BIDS_DIR="$BIDS" bash "$REPO/scripts/ds005237_fetch.sh" "$SUB" > "$LOGS/sub-$SUB.fetch.log" 2>&1
 
+pyrun() {  # pyrun MODULE ARGS...: run a conn01 module in isolated mode
+  local mod=$1; shift
+  "$VENV/bin/python" -I -c \
+    'import sys, importlib; sys.path.insert(0, sys.argv[1]); m = importlib.import_module(sys.argv[2]); sys.exit(m.main(sys.argv[3:]))' \
+    "$REPO/src" "$mod" "$@"
+}
+
+log "fieldmap link"
+SDC_RECEIPT="$WORK/sdc_receipt.json"
+SDC_PATH=$(pyrun conn01.fmaplink --sub-dir "$BIDS/sub-$SUB" --receipt "$SDC_RECEIPT" \
+  --backup-dir "$WORK/sidecars-orig" 2> "$LOGS/sub-$SUB.fmaplink.log" | tail -1)
+case "$SDC_PATH" in
+  fieldmaps) SDC_ARGS=() ;;
+  syn) SDC_ARGS=(--use-syn-sdc error --ignore fieldmaps) ;;
+  *) echo "fmaplink gave no decision for sub-$SUB, see $LOGS/sub-$SUB.fmaplink.log" >&2; exit 3 ;;
+esac
+log "sdc path: $SDC_PATH"
+
 FILTER="$WORK/bids_filter.json"
 cat > "$FILTER" <<'EOF'
 {"bold": {"datatype": "func", "suffix": "bold", "task": ["restAP", "restPA"]},
@@ -52,20 +78,19 @@ apptainer run --cleanenv -B "$DATA:/data" "$SIF" \
   --fs-no-reconall \
   --nthreads 8 --omp-nthreads 4 --mem-mb 7000 \
   -w "/data/${WORK#$DATA/}" \
+  ${SDC_ARGS[@]+"${SDC_ARGS[@]}"} \
   --notrack --stop-on-first-crash \
   > "$LOGS/sub-$SUB.fmriprep.log" 2>&1
 
 log "extract"
-"$VENV/bin/python" -I -c \
-  'import sys; sys.path.insert(0, sys.argv[1]); from conn01.extract import main; sys.exit(main(sys.argv[2:]))' \
-  "$REPO/src" --fmriprep-dir "$DERIV" --bids-dir "$BIDS" --participant "$SUB" --out "$OUT" \
-  > "$LOGS/sub-$SUB.extract.log" 2>&1
+pyrun conn01.extract --fmriprep-dir "$DERIV" --bids-dir "$BIDS" --participant "$SUB" \
+  --out "$OUT" --sdc-receipt "$SDC_RECEIPT" > "$LOGS/sub-$SUB.extract.log" 2>&1
 
 log "cleanup"
 cp "$LOGS/sub-$SUB.fetch.log" "$OUT/sub-$SUB/"
 if [ "${KEEP_REPORT:-0}" = "1" ]; then
   mkdir -p "$OUT/sub-$SUB/report"
-  cp -r "$DERIV/sub-$SUB.html" "$DERIV/sub-$SUB/figures" "$OUT/sub-$SUB/report/"     || log "WARNING: report copy failed"
+  cp -r "$DERIV/sub-$SUB.html" "$DERIV/sub-$SUB/figures" "$OUT/sub-$SUB/report/" || log "WARNING: report copy failed"
 fi
 rm -rf "$BIDS" "$WORK" "$DERIV/sub-$SUB" "$DERIV/sub-$SUB.html"
 touch "$OUT/sub-$SUB/DONE"

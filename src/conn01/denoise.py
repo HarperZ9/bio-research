@@ -1,7 +1,9 @@
 """Pre-registered denoising, censoring and run exclusion (prereg 01).
 
 Regressors: 24 motion parameters, aCompCor (top 5 white-matter plus top 5 CSF
-components), all cosine drift terms; no global signal in the primary model.
+components; per deviation 1 of 2026-10-09, the available components up to 5
+per mask when fMRIPrep retains fewer), all cosine drift terms; no global
+signal in the primary model.
 Censoring: volumes with FD > 0.5 mm. A run is unusable if more than 20% of its
 volumes are censored or its mean FD > 0.3 mm. A participant needs >= 2 usable
 runs.
@@ -31,8 +33,6 @@ MOTION_24 = [
 ]
 
 
-class CompCorShortfall(ValueError):
-    """Fewer than 5 retained aCompCor components exist for a mask."""
 
 
 @dataclass
@@ -73,14 +73,12 @@ def run_qc(confounds: pd.DataFrame) -> RunQC:
     return RunQC(n, n_cens, mean_fd, frac, not reasons, ";".join(reasons))
 
 
-def compcor_columns(meta: dict, mask: str, n: int = N_COMPCOR_PER_MASK,
-                    allow_fewer: bool = False) -> list[str]:
-    """Top-n retained a_comp_cor columns for one mask ("WM" or "CSF").
+def compcor_columns(meta: dict, mask: str, n: int = N_COMPCOR_PER_MASK) -> list[str]:
+    """Top retained a_comp_cor columns for one mask ("WM" or "CSF"), up to n.
 
     Components are ranked by singular value within the mask, using the
-    fMRIPrep confounds JSON. Raises CompCorShortfall if fewer than n exist
-    unless allow_fewer is set (that choice is a proposed deviation and needs
-    sign-off; see project-docs/prereg/01-DEVIATIONS-PROPOSED.md).
+    fMRIPrep confounds JSON. Fewer than n are returned when fewer were
+    retained (prereg 01 deviation 1); callers record the count.
     """
     rows = [
         (k, v.get("SingularValue", 0.0)) for k, v in meta.items()
@@ -88,18 +86,19 @@ def compcor_columns(meta: dict, mask: str, n: int = N_COMPCOR_PER_MASK,
         and v.get("Retained", True)
     ]
     rows.sort(key=lambda kv: -kv[1])
-    cols = [k for k, _ in rows[:n]]
-    if len(cols) < n and not allow_fewer:
-        raise CompCorShortfall(f"{mask}: {len(cols)} retained components < {n}")
-    return cols
+    return [k for k, _ in rows[:n]]
 
 
-def design_matrix(confounds: pd.DataFrame, meta: dict, gsr: bool = False,
-                  allow_fewer_compcor: bool = False) -> np.ndarray:
+def compcor_counts(meta: dict) -> dict[str, int]:
+    """Number of aCompCor components used per mask (capped at 5)."""
+    return {m: len(compcor_columns(meta, m)) for m in ("WM", "CSF")}
+
+
+def design_matrix(confounds: pd.DataFrame, meta: dict, gsr: bool = False) -> np.ndarray:
     """Nuisance design: intercept + 24 motion + 5 WM + 5 CSF aCompCor + cosines."""
     cols = list(MOTION_24)
-    cols += compcor_columns(meta, "WM", allow_fewer=allow_fewer_compcor)
-    cols += compcor_columns(meta, "CSF", allow_fewer=allow_fewer_compcor)
+    cols += compcor_columns(meta, "WM")
+    cols += compcor_columns(meta, "CSF")
     cols += sorted(c for c in confounds.columns if c.startswith("cosine"))
     if gsr:
         cols.append("global_signal")
@@ -117,11 +116,10 @@ def residualize(y: np.ndarray, x: np.ndarray) -> np.ndarray:
 
 
 def run_connectivity(ts: pd.DataFrame, confounds: pd.DataFrame, meta: dict,
-                     pairs: list[tuple[str, str]], gsr: bool = False,
-                     allow_fewer_compcor: bool = False) -> dict[str, float]:
+                     pairs: list[tuple[str, str]], gsr: bool = False) -> dict[str, float]:
     """Fisher z of the Pearson r for each region pair in one run."""
     keep = censor_mask(fd_series(confounds))
-    x = design_matrix(confounds, meta, gsr, allow_fewer_compcor)[keep]
+    x = design_matrix(confounds, meta, gsr)[keep]
     if x.shape[0] <= x.shape[1] + 2:
         raise ValueError("too few retained volumes for the nuisance model")
     names = sorted({r for p in pairs for r in p})

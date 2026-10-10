@@ -22,12 +22,13 @@ ALL_PAIRS = [PRIMARY, SECONDARY] + LATERAL
 
 
 def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
-                   gsr: bool = False, allow_fewer_compcor: bool = False) -> dict:
+                   gsr: bool = False) -> dict:
     """Combine runs given as (timeseries, confounds, confounds_json) tuples.
 
     Returns a dict with per-pair mean z over usable runs, mean FD over usable
     runs (all defined FD values pooled), retained volume count (uncensored
-    volumes in usable runs), run counts and an inclusion flag.
+    volumes in usable runs), run counts, an inclusion flag, and the smallest
+    aCompCor count used per mask over usable runs (deviation 1).
     """
     qcs = [dn.run_qc(c) for _, c, _ in runs]
     usable = [i for i, q in enumerate(qcs) if q.usable]
@@ -42,9 +43,11 @@ def summarize_runs(runs: list[tuple[pd.DataFrame, pd.DataFrame, dict]],
     ])
     out["mean_fd"] = float(np.nanmean(fds))
     out["n_retained"] = int(sum(qcs[i].n_volumes - qcs[i].n_censored for i in usable))
+    counts = [dn.compcor_counts(runs[i][2]) for i in usable]
+    out["n_compcor_wm_min"] = min(c["WM"] for c in counts)
+    out["n_compcor_csf_min"] = min(c["CSF"] for c in counts)
     per_run = [
-        dn.run_connectivity(runs[i][0], runs[i][1], runs[i][2], ALL_PAIRS,
-                            gsr=gsr, allow_fewer_compcor=allow_fewer_compcor)
+        dn.run_connectivity(runs[i][0], runs[i][1], runs[i][2], ALL_PAIRS, gsr=gsr)
         for i in usable
     ]
     for key in per_run[0]:
@@ -67,19 +70,17 @@ def load_subject_runs(sub_dir: Path) -> list[tuple[pd.DataFrame, pd.DataFrame, d
     return runs
 
 
-def build_outcome_table(root: Path, gsr: bool = False,
-                        allow_fewer_compcor: bool = False) -> pd.DataFrame:
+def build_outcome_table(root: Path, gsr: bool = False) -> pd.DataFrame:
     """One row per participant directory under root that has a DONE marker."""
     rows = []
     for sub_dir in sorted(Path(root).glob("sub-*")):
         if not (sub_dir / "DONE").exists():
             continue
         try:
-            summary = summarize_runs(load_subject_runs(sub_dir), gsr,
-                                     allow_fewer_compcor)
+            summary = summarize_runs(load_subject_runs(sub_dir), gsr)
             summary.pop("runs")
             summary["error"] = ""
-        except (dn.CompCorShortfall, KeyError, ValueError) as exc:
+        except (KeyError, ValueError) as exc:
             # Recorded, not swallowed: the row is excluded and the reason kept.
             print(f"[conn01] {sub_dir.name}: excluded, {type(exc).__name__}: {exc}")
             summary = {"included": False, "error": f"{type(exc).__name__}: {exc}"}

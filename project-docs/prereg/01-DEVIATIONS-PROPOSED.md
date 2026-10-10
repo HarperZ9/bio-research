@@ -1,5 +1,17 @@
 # Prereg 01: proposed deviations and open interpretation points
 
+**Status: RESOLVED 2026-10-09.** Items A1 to A3 were decided and logged in
+the prereg "Deviations" section (commit d3cd443) and are implemented:
+A1 in `src/conn01/denoise.py` (up to 5 components per mask, counts in the QC
+JSON and outcome table; sensitivity `exclude_compcor_short` and
+`--compcor-full-only` in `run_analysis.py`), A2 in `analyze.decide` (the
+association call needs the 95% CI to exclude 0 and Holm p < 0.05), A3 in
+`src/conn01/fmaplink.py` and `scripts/run_fmriprep_one.sh` (IntendedFor and
+B0FieldSource in local sidecars when compatible, otherwise
+`--use-syn-sdc error --ignore fieldmaps`; the path is in the QC JSON "sdc").
+Section B items stand as the implemented readings. The text below is the
+original proposal, kept for the record.
+
 Written 2026-10-09 while building the pipeline (src/conn01, scripts/). The
 frozen pre-registration (sha256 4d4681b9...f753) is unchanged. Nothing below
 is applied. Each item needs a decision by the operator and lead session

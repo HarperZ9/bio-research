@@ -52,5 +52,5 @@ def test_runner_end_to_end_on_synthetic_inputs(tmp_path):
     assert prim["r"] > 0.3 and prim["decision"] == an.ASSOCIATION
     names = {r["sensitivity"] for r in res["sensitivity"]}
     assert {"gsr", "amygdala_l", "amygdala_r", "exclude_max_minimization",
-            "plus_diagnostic_group"} <= names
+            "plus_diagnostic_group", "exclude_compcor_short"} <= names
     assert all(r["status"] == "exploratory" for r in res["sensitivity"])

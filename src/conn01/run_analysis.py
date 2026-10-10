@@ -10,7 +10,7 @@ Column names in the phenotype tables were not read when this was written
 named column is missing the script stops and lists the available column
 names, never values. Without --site-col the scanner InstitutionName from the
 BIDS sidecars is used as site. The results JSON holds the primary and
-secondary tests (Holm across both) and the five exploratory sensitivity
+secondary tests (Holm across both) and the exploratory sensitivity
 analyses, labelled as exploratory.
 """
 from __future__ import annotations
@@ -52,8 +52,7 @@ def scanner_site(conn_root: Path, pid: str) -> str | None:
 
 def assemble(a: argparse.Namespace, gsr: bool = False) -> pd.DataFrame:
     """Merge outcomes, CTQ and demographics; keep included participants."""
-    out = pt.build_outcome_table(a.conn_root, gsr=gsr,
-                                 allow_fewer_compcor=a.allow_fewer_compcor)
+    out = pt.build_outcome_table(a.conn_root, gsr=gsr)
     ctq = read_table(a.ctq, a.id_col, an.CTQ_SUBSCALES + ["ctqscore_val"])
     demo_cols = [a.age_col, a.sex_col] + [c for c in (a.site_col, a.group_col) if c]
     demos = read_table(a.demos, a.id_col, demo_cols)
@@ -78,7 +77,7 @@ CATEGORICAL = ["sex", "site"]
 
 
 def sensitivity(a: argparse.Namespace, df: pd.DataFrame) -> list[dict]:
-    """Five exploratory analyses from the prereg; no decision is drawn."""
+    """The five prereg sensitivity analyses plus the deviation 1 aCompCor one."""
     res = []
     gdf = assemble(a, gsr=True)
     res += _tag("gsr", an.primary_and_secondary(gdf, PRIMARY_Z, SECONDARY_Z,
@@ -94,6 +93,8 @@ def sensitivity(a: argparse.Namespace, df: pd.DataFrame) -> list[dict]:
     kept = df[df["ctqscore_val"] < val_max]
     res += _tag("exclude_max_minimization", an.primary_and_secondary(
         kept, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL))
+    res += _tag("exclude_compcor_short", an.primary_and_secondary(
+        an.exclude_compcor_short(df), PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL))
     if a.group_col:
         res += _tag("plus_diagnostic_group", an.primary_and_secondary(
             df, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL + [a.group_col]))
@@ -118,15 +119,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sex-col", required=True)
     ap.add_argument("--site-col")
     ap.add_argument("--group-col")
-    ap.add_argument("--allow-fewer-compcor", action="store_true",
-                    help="proposed deviation; needs sign-off before use")
+    ap.add_argument("--compcor-full-only", action="store_true",
+                    help="deviation 1 sensitivity as the main table: keep only "
+                         "participants with 5 aCompCor components per mask")
     a = ap.parse_args(argv)
     df = assemble(a)
+    if a.compcor_full_only:
+        df = an.exclude_compcor_short(df)
     primary = an.primary_and_secondary(df, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL)
     result = {"prereg_sha256": "4d4681b9f44188b37e60fd9c53d94a85e01cd1529f4d2be7228a42a3ff36f753",
               "n_after_merge": int(len(df)), "registered": primary,
               "sensitivity": sensitivity(a, df),
-              "allow_fewer_compcor": a.allow_fewer_compcor}
+              "compcor_full_only": a.compcor_full_only}
     a.out.write_text(json.dumps(result, indent=2, default=float))
     print(f"[run_analysis] wrote {a.out}")
     return 0

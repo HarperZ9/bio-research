@@ -75,16 +75,19 @@ def test_fisher_ci_formula():
     assert lo < lo90 < 0.3 < hi90 < hi
 
 
-@pytest.mark.parametrize("r,ci95,ci90,expected", [
-    (0.30, (0.15, 0.44), (0.17, 0.42), (an.ASSOCIATION, "meaningful")),
-    (-0.20, (-0.33, -0.06), (-0.31, -0.08), (an.ASSOCIATION, "meaningful")),
-    (0.12, (0.02, 0.22), (0.04, 0.20), (an.ASSOCIATION, "small")),
-    (0.01, (-0.12, 0.14), (-0.10, 0.12), (an.NO_MEANINGFUL, "")),
-    (0.05, (-0.15, 0.25), (-0.12, 0.22), (an.INCONCLUSIVE, "")),
-    (0.00, (-0.25, 0.25), (-0.21, 0.21), (an.INCONCLUSIVE, "")),
+@pytest.mark.parametrize("r,ci95,ci90,p_holm,expected", [
+    (0.30, (0.15, 0.44), (0.17, 0.42), 0.001, (an.ASSOCIATION, "meaningful")),
+    (-0.20, (-0.33, -0.06), (-0.31, -0.08), 0.01, (an.ASSOCIATION, "meaningful")),
+    (0.12, (0.02, 0.22), (0.04, 0.20), 0.02, (an.ASSOCIATION, "small")),
+    (0.01, (-0.12, 0.14), (-0.10, 0.12), 0.9, (an.NO_MEANINGFUL, "")),
+    (0.05, (-0.15, 0.25), (-0.12, 0.22), 0.6, (an.INCONCLUSIVE, "")),
+    (0.00, (-0.25, 0.25), (-0.21, 0.21), 1.0, (an.INCONCLUSIVE, "")),
+    # CI excludes 0 but Holm-adjusted p fails: no association call (deviation 2)
+    (0.15, (0.01, 0.28), (0.03, 0.26), 0.06, (an.INCONCLUSIVE, "")),
+    (0.10, (0.005, 0.19), (0.02, 0.18), 0.08, (an.NO_MEANINGFUL, "")),
 ])
-def test_decision_rule_constructed_inputs(r, ci95, ci90, expected):
-    assert an.decide(r, ci95, ci90) == expected
+def test_decision_rule_constructed_inputs(r, ci95, ci90, p_holm, expected):
+    assert an.decide(r, ci95, ci90, p_holm) == expected
 
 
 def test_decision_rule_end_to_end_three_outcomes():
@@ -103,15 +106,42 @@ def test_holm_adjustment():
     assert an.holm([0.6, 0.7]) == pytest.approx([1.0, 1.0])
 
 
-def test_primary_secondary_applies_holm_to_association_flag():
-    df = planted(400, 0.12, seed=9)
+def _pick_seed_with_p_between(lo, hi):
+    """Find a synthetic sample whose single-test p lies in (lo, hi)."""
+    for seed in range(500):
+        df = planted(300, 0.12, seed=seed)
+        t = an.run_test(df, "ctq_total", "z_out", NUM, CAT, "x")
+        if lo < t.p < hi:
+            return df
+    raise AssertionError("no seed found")
+
+
+def test_holm_gates_the_association_call():
+    # Single-test p in (0.025, 0.05): its 95% CI excludes 0, but with two
+    # equal p values Holm doubles it above 0.05, so no association is called.
+    df = _pick_seed_with_p_between(0.026, 0.049)
+    single = an.run_test(df, "ctq_total", "z_out", NUM, CAT, "x")
+    assert single.decision == an.ASSOCIATION
     df["z_sec"] = df["z_out"]
     rows = an.primary_and_secondary(df, "z_out", "z_sec", NUM, CAT)
     assert [r["label"] for r in rows] == ["primary", "secondary"]
     for r in rows:
         assert r["p_holm"] == pytest.approx(min(1.0, 2 * r["p"]))
-        assert r["association_survives_holm"] == (
-            r["decision"] == an.ASSOCIATION and r["p_holm"] < 0.05)
+        assert r["ci95"][0] > 0 and r["p_holm"] > 0.05
+        assert r["decision"] != an.ASSOCIATION
+
+
+def test_holm_passes_strong_association():
+    df = planted(2000, 0.3, seed=11)
+    df["z_sec"] = df["z_out"]
+    rows = an.primary_and_secondary(df, "z_out", "z_sec", NUM, CAT)
+    assert all(r["decision"] == an.ASSOCIATION and r["p_holm"] < 0.05 for r in rows)
+
+
+def test_exclude_compcor_short_drops_either_mask_shortfall():
+    df = pd.DataFrame({"n_compcor_wm_min": [5, 4, 5, 3],
+                       "n_compcor_csf_min": [5, 5, 2, 3], "id": list("abcd")})
+    assert an.exclude_compcor_short(df)["id"].tolist() == ["a"]
 
 
 def test_ctq_total_sums_and_excludes_missing():

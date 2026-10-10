@@ -69,13 +69,18 @@ def test_process_participant_end_to_end(tmp_path, monkeypatch):
     monkeypatch.setattr(atlas, "load_masks",
                         lambda reference_img=None: (_fake_masks(shape), np.eye(4)))
     monkeypatch.setattr(extract, "CHUNK", 7)  # force several chunks
+    receipt = tmp_path / "sdc.json"
+    receipt.write_text(json.dumps({"sdc_path": "syn", "reason": "synthetic"}))
     out = extract.process_participant(tmp_path / "fmriprep", tmp_path / "bids",
-                                      "SYN01", tmp_path / "conn01")
+                                      "SYN01", tmp_path / "conn01", receipt)
     ts_files = sorted(out.glob("*_run-0?_timeseries.tsv"))
     assert len(ts_files) == 3
     qc = json.loads((out / "sub-SYN01_qc.json").read_text())
     assert qc["n_runs"] == 3 and qc["meets_min_usable_runs"]
     assert qc["runs"][0]["n_acompcor_wm_retained"] == 7
+    assert qc["runs"][0]["n_acompcor_wm_used"] == 5
+    assert qc["acompcor_min_used"] == {"WM": 5, "CSF": 5}
+    assert qc["sdc"]["sdc_path"] == "syn"
     assert qc["fmriprep_generated_by"][0]["Version"] == "synthetic"
     assert "z__" not in json.dumps(qc)  # extraction stores no connectivity
     (out / "DONE").touch()
@@ -96,7 +101,7 @@ def test_extracted_series_match_planted_voxel_values(tmp_path, monkeypatch):
     assert np.allclose(ts["vmpfc_fmc"], vol[3, 0, 0], atol=1e-4)
 
 
-def test_participant_with_compcor_shortfall_is_excluded_with_reason(tmp_path):
+def test_participant_with_compcor_shortfall_is_kept_with_count(tmp_path):
     rng = np.random.default_rng(2)
     d = tmp_path / "sub-X"
     d.mkdir()
@@ -108,4 +113,6 @@ def test_participant_with_compcor_shortfall_is_excluded_with_reason(tmp_path):
         (d / f"{stem}_desc-confounds_timeseries.json").write_text(json.dumps(meta))
     (d / "DONE").touch()
     table = pt.build_outcome_table(tmp_path)
-    assert not table.loc[0, "included"] and "CompCorShortfall" in table.loc[0, "error"]
+    row = table.loc[0]
+    assert row["included"] and row["error"] == ""
+    assert row["n_compcor_wm_min"] == 4 and row["n_compcor_csf_min"] == 5

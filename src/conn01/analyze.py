@@ -40,7 +40,6 @@ class TestResult:
     decision: str
     magnitude: str
     p_holm: float = float("nan")
-    association_survives_holm: bool = False
 
 
 def ctq_total(df: pd.DataFrame) -> pd.Series:
@@ -98,14 +97,16 @@ def fisher_ci(r: float, n: int, k: int, level: float) -> tuple[float, float]:
 
 
 def decide(r: float, ci95: tuple[float, float], ci90: tuple[float, float],
-           bound: float = BOUND) -> tuple[str, str]:
-    """Pre-registered three-way rule. Returns (decision, magnitude).
+           p_holm: float, bound: float = BOUND) -> tuple[str, str]:
+    """Pre-registered three-way rule with Holm gating. Returns (decision, magnitude).
 
-    Association is checked first: the 95% CI excludes 0. Its magnitude is
-    "meaningful" if |r| >= bound, else "small". Otherwise, "no meaningful
-    association" if the 90% CI lies inside (-bound, bound). Else inconclusive.
+    Association is checked first and needs both the 95% CI excluding 0 and
+    the Holm-adjusted p (across primary and secondary) below 0.05 (prereg 01
+    deviation 2). Its magnitude is "meaningful" if |r| >= bound, else
+    "small". Otherwise, "no meaningful association" if the 90% CI lies inside
+    (-bound, bound). Else inconclusive.
     """
-    if ci95[0] > 0 or ci95[1] < 0:
+    if (ci95[0] > 0 or ci95[1] < 0) and p_holm < ALPHA:
         return ASSOCIATION, ("meaningful" if abs(r) >= bound else "small")
     if ci90[0] > -bound and ci90[1] < bound:
         return NO_MEANINGFUL, ""
@@ -134,18 +135,27 @@ def run_test(df: pd.DataFrame, exposure: str, outcome: str, numeric: list[str],
     r, p, n, k = partial_corr(d[exposure].to_numpy(float),
                               d[outcome].to_numpy(float), z)
     ci95, ci90 = fisher_ci(r, n, k, 0.95), fisher_ci(r, n, k, 0.90)
-    decision, magnitude = decide(r, ci95, ci90)
-    return TestResult(label, n, k, r, p, ci95, ci90, decision, magnitude)
+    # Single-test decision (Holm over one test leaves p unchanged);
+    # primary_and_secondary re-decides with the Holm-adjusted p.
+    decision, magnitude = decide(r, ci95, ci90, p)
+    return TestResult(label, n, k, r, p, ci95, ci90, decision, magnitude, p)
 
 
 def primary_and_secondary(df: pd.DataFrame, primary_outcome: str,
                           secondary_outcome: str, numeric: list[str],
                           categorical: list[str],
                           exposure: str = "ctq_total") -> list[dict]:
-    """Run both registered tests and apply Holm across the pair."""
+    """Run both registered tests; decide each with the Holm-adjusted p."""
     res = [run_test(df, exposure, primary_outcome, numeric, categorical, "primary"),
            run_test(df, exposure, secondary_outcome, numeric, categorical, "secondary")]
     for t, ph in zip(res, holm([t.p for t in res])):
         t.p_holm = ph
-        t.association_survives_holm = bool(t.decision == ASSOCIATION and ph < ALPHA)
+        t.decision, t.magnitude = decide(t.r, t.ci95, t.ci90, ph)
     return [asdict(t) for t in res]
+
+
+def exclude_compcor_short(df: pd.DataFrame, n: int = 5) -> pd.DataFrame:
+    """Sensitivity (deviation 1): drop participants with fewer than n aCompCor
+    components in either mask in any usable run."""
+    keep = (df["n_compcor_wm_min"] >= n) & (df["n_compcor_csf_min"] >= n)
+    return df[keep]

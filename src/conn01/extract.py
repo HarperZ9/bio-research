@@ -72,15 +72,17 @@ def run_record(stem: str, conf: pd.DataFrame, meta: dict, n_ts: int) -> dict:
     if len(conf) != n_ts:
         raise ValueError(f"{stem}: confounds rows {len(conf)} != volumes {n_ts}")
     qc = dn.run_qc(conf)
-    n_wm = len(dn.compcor_columns(meta, "WM", n=10**6, allow_fewer=True))
-    n_csf = len(dn.compcor_columns(meta, "CSF", n=10**6, allow_fewer=True))
+    n_wm = len(dn.compcor_columns(meta, "WM", n=10**6))
+    n_csf = len(dn.compcor_columns(meta, "CSF", n=10**6))
+    used = dn.compcor_counts(meta)
     nss = [c for c in conf.columns if c.startswith("non_steady_state")]
     return {"run": stem, **vars(qc), "n_acompcor_wm_retained": n_wm,
-            "n_acompcor_csf_retained": n_csf, "n_non_steady_state": len(nss)}
+            "n_acompcor_csf_retained": n_csf, "n_acompcor_wm_used": used["WM"],
+            "n_acompcor_csf_used": used["CSF"], "n_non_steady_state": len(nss)}
 
 
 def process_participant(fmriprep_dir: Path, bids_dir: Path, label: str,
-                        out_root: Path) -> Path:
+                        out_root: Path, sdc_receipt: Path | None = None) -> Path:
     runs = find_runs(fmriprep_dir, label)
     if not runs:
         raise FileNotFoundError(f"no {SPACE} rest BOLD for sub-{label}")
@@ -99,17 +101,23 @@ def process_participant(fmriprep_dir: Path, bids_dir: Path, label: str,
         rec = run_record(stem, conf, meta, len(ts))
         rec["scanner"] = bids_metadata(bids_dir, label, stem)
         records.append(rec)
-    write_qc(out, label, records, fmriprep_dir)
+    sdc = json.loads(sdc_receipt.read_text()) if sdc_receipt else None
+    write_qc(out, label, records, fmriprep_dir, sdc)
     return out
 
 
-def write_qc(out: Path, label: str, records: list[dict], fmriprep_dir: Path) -> None:
+def write_qc(out: Path, label: str, records: list[dict], fmriprep_dir: Path,
+             sdc: dict | None = None) -> None:
     desc = Path(fmriprep_dir) / "dataset_description.json"
     generated = json.loads(desc.read_text()).get("GeneratedBy") if desc.exists() else None
     usable = sum(r["usable"] for r in records)
     qc = {"participant": f"sub-{label}", "fmriprep_generated_by": generated,
           "n_runs": len(records), "n_usable_runs": usable,
           "meets_min_usable_runs": usable >= dn.MIN_USABLE_RUNS,
+          "acompcor_min_used": {
+              "WM": min((r["n_acompcor_wm_used"] for r in records), default=0),
+              "CSF": min((r["n_acompcor_csf_used"] for r in records), default=0)},
+          "sdc": sdc,
           "regions": {k: list(v[1]) for k, v in atlas.REGIONS.items()},
           "runs": records}
     (out / f"sub-{label}_qc.json").write_text(json.dumps(qc, indent=2))
@@ -121,9 +129,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bids-dir", type=Path, required=True)
     ap.add_argument("--participant", required=True, help="label without sub-")
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--sdc-receipt", type=Path,
+                    help="fmaplink receipt: field maps or field-map-less SyN")
     a = ap.parse_args(argv)
     label = a.participant.removeprefix("sub-")
-    out = process_participant(a.fmriprep_dir, a.bids_dir, label, a.out)
+    out = process_participant(a.fmriprep_dir, a.bids_dir, label, a.out,
+                              a.sdc_receipt)
     print(f"[extract] wrote {out}")
     return 0
 
