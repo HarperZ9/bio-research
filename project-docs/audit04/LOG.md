@@ -47,3 +47,10 @@ Append-only. Times are local, 2026-10-09.
    in data/audit04/results.md. Disagreements resolved only by the pre-written
    strict and lenient rule; no code was changed. Finding appended as F-04-1 in
    project-docs/FINDINGS.md.
+9. Hash note. Python's csv module wrote codes_A.csv and codes_B.csv with CRLF line
+   endings, and .gitattributes (eol=lf) normalizes them on commit. The hashes in
+   entries 6 and 7 are of the CRLF files as written. The committed LF blobs hash to
+   codes_A.csv 21e70ce952f47e67466f3e1603b4b5500d3bde5f3dc54a16d00c95256b91ae5d and
+   codes_B.csv 046eb782d10b1f70f768cf294dd278809c224e8f95c5cc3a03ede683133f965b.
+   Converting the committed files back to CRLF reproduces the entry 6 and 7 hashes.
+   The codebook hash in entry 2 matches the committed blob in fa145a9.
