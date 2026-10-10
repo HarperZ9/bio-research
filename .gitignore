@@ -10,3 +10,4 @@ __pycache__/
 *.pyc
 data/raw/
 data/cache/
+data/audit04/raw/
