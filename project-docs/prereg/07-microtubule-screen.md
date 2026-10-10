@@ -1,6 +1,6 @@
 # Pre-registration 07: microtubule-regulator gene-set screen after chronic social defeat
 
-Version 1, written 2026-10-09 before any expression data, count matrix or
+Version 2, 2026-10-09 (version 1 committed as 16b34fd). Version 1 was written 2026-10-09 before any expression data, count matrix or
 supplementary file of any dataset named here was downloaded or opened. Source
 brief: project-docs/briefs/07-neuronal-microtubules.md, sections 7 and 8.
 The frozen gene list is the sibling file `07-geneset-M.txt`; its SHA-256 and
@@ -75,8 +75,8 @@ prediction: low.
    defeated vs control.
 3. Held-out B (different lab, small n): GSE127812, PFC, defeated vs control.
    Direction only.
-4. Held-out C (different lab, larger n): to be named in version 2 of this file
-   before its expression values are opened.
+4. Held-out C (different lab, larger n): GSE72343 (Bagot et al., Nestler lab,
+   PMID 27181059, C57BL/6J males, GPL13112). Named in version 2, see below.
 5. Deferred, not part of this first analysis: GSE138670 (sorted interneurons),
    GSE81587 (n = 2 per group), vHPC and BNST in GSE109315.
 
@@ -144,3 +144,49 @@ fail its criterion. Each held-out result is reported separately.
 
 Nothing above. Any change after the first download is written to the
 "Deviations" section of the result and of FINDINGS.md, with the reason.
+
+## Version 2 addendum: held-out C (added before any expression value was opened)
+
+Search: NCBI E-utilities esearch on db=gds, term `("social defeat") AND
+(prefrontal OR mPFC OR PFC) AND "Mus musculus"[orgn] AND gse[entry_type]`,
+2026-10-09, 31 series returned. Candidates were screened on GEO record text and
+sample metadata only (titles, characteristics, supplementary file names and
+sizes). No supplementary file was downloaded at this step.
+
+Chosen: GSE72343, "Circuit-wide transcriptional profiling reveals region
+specific gene co-expression networks regulating depression susceptibility".
+140 samples over 4 regions and 3 time points. Lab: Nestler (Mount Sinai);
+GSE109315 is from a different lab (Helsinki; C57BL/6Crl and DBA/2Crl).
+Verified from sample metadata, region "adult prefrontal cortex":
+
+| Time point | Control | Susceptible | Resilient |
+|---|---|---|---|
+| 48h post CSDS | 3 | 3 | 3 |
+| 28d post CSDS | 4 | 3 | 5 |
+| 28d +1h stress post CSDS | 4 | 4 | 4 |
+
+Held-out C contrast: PFC samples at 48h and 28d (control n = 7, defeated
+n = 14), model ~ timepoint + condition, defeated = susceptible + resilient.
+The "28d +1h stress" group is excluded because it adds an acute stressor on
+the day of tissue collection, a different exposure from the discovery set
+(GSE109315 collected tissue 6 to 8 days after the last defeat, per its record).
+Criterion: one-sided p < 0.05 for DOWN in the primary random-set test.
+
+Pre-specified fallback, decided now: GSE72343 has one supplementary file,
+GSE72343_processed_data_files.tar.gz (2.2 MB per the GEO directory listing,
+small for 140 samples). If it holds no per-sample PFC expression values, held-out
+C becomes GSE161726 (Kalisch and Mueller labs, Mainz, PMID 37068238): mPFC,
+control n = 4, defeated n = 15 (non-avoiders 5, indiscriminate avoiders 6,
+discriminating avoiders 4), SMART-Seq v4 low input, contrast defeated vs control,
+same criterion. Whether the fallback is used is decided from file names and
+column headers only, and is logged.
+
+Known before data, from the GSE109315 record: its processed files are named
+`*_counts_logCPM.txt.gz`, so they may hold logCPM rather than raw counts.
+Method step 1 already covers this case.
+
+Other candidates considered and not chosen: GSE161726 (smaller control group,
+low-input libraries; kept as fallback), GSE146845 (PFC, 4 to 5 per group with
+a drug arm; smaller), GSE81672 (same lab as GSE72343, 3 to 5 per group),
+GSE325386 (2026, social hierarchy design; region mix not checked), array-based
+series (different platform type).
