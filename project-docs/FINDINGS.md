@@ -440,3 +440,116 @@ Does not prove.
 - No total-tau adjustment; no paired global proteome.
 - Sex labels are inferred, not confirmed.
 - Nothing here measures microtubule stability.
+
+## F-02-1 (2026-10-10). Day-to-day noise floor of hippocampal volume in one person (ds002674, 60 sessions): 0.77 percent; lagged stress association not detected
+
+Question. In one healthy adult scanned on 60 days (30 naturally cycling, 2018;
+30 on an oral contraceptive, 2019), how much does an automated hippocampal
+volume move from day to day, and does same-day or prior-day Perceived Stress
+Scale (PSS) predict it? Decision informed: whether a larger longitudinal test
+can resolve the effect sizes in the literature with single scans
+(pre-registration section 7).
+
+Receipts.
+- Pre-registration: project-docs/prereg/02-tierB-noise-floor.md, commit
+  961bf36, SHA-256 7d4a0604...ffd50230 (HASHES.md), committed before any image
+  or table value was downloaded.
+- Data receipts: project-docs/prereg/02-DATA.md and
+  02-results/ds002674-manifest.txt (124 files, 1,103,437,406 bytes, CC0). Data
+  under H:\bio-data\ds002674; segmentations under
+  H:\bio-data\ds002674-derivatives\synthseg.
+- Segmentation: SynthSeg 2.0 robust (BBillot/SynthSeg 2a2aa3b, weights checked
+  against FreeSurfer annex SHA-256), CPU, all 60 sessions, 0 failures.
+- Code: src/gm02/ (gls.py block-AR(1) GLS with profile-likelihood rho;
+  perm.py block permutation; noise.py; data.py; run.py). Run from src/:
+  `python -m gm02.run H:/bio-data/ds002674-derivatives/synthseg H:/bio-data/ds002674/participants.tsv ../project-docs/prereg/02-results`.
+  Outputs: 02-results/results.json, 02-results/sessions.csv.
+- Tests: tests/test_gm02_{gls,perm,noise,run}.py, 13 passed. GLS recovers a
+  planted slope (mean 0.6 over 200 runs, 95 percent CI coverage in 0.90 to
+  0.99); block permutation on independent AR(1) (rho 0.7) X and Y rejected 2
+  of 120 at alpha 0.05 (conservative); end-to-end run recovers a planted
+  -1 percent per SD effect.
+- Exclusions: none. No duplicate T1w (ses-18 and ses-19 differ by file and
+  voxel hash). No session beyond 4 robust SD.
+
+Noise floor (all 60 sessions; percent of the mean).
+
+| Measure | Pooled within-study CV (90% CI) | Study 1 CV | Study 2 CV | Typical error (consecutive days) | Lag-1 autocorr (study 1, 2) |
+|---|---|---|---|---|---|
+| Hippocampus / TIV (decision quantity) | 0.77 (0.67 to 0.92) | 0.85 | 0.69 | 0.65 | 0.41, 0.10 |
+| Hippocampus, raw bilateral (mean 8586 mm^3) | 0.78 (0.68 to 0.92) | 0.88 | 0.67 | 0.64 | 0.43, 0.11 |
+| Left hippocampus | 1.09 (0.94 to 1.28) | 1.26 | 0.87 | 0.84 | 0.48, 0.21 |
+| Right hippocampus | 0.92 (0.80 to 1.09) | 0.82 | 1.02 | 0.86 | 0.21, 0.08 |
+| Amygdala / TIV | 1.21 (1.05 to 1.43) | 1.04 | 1.35 | 1.19 | 0.14, -0.13 |
+| TIV (mean 1,499,193 mm^3) | 0.11 (0.10 to 0.13) | 0.11 | 0.11 | 0.11 | -0.23, 0.38 |
+
+- Left and right hippocampal series correlate at r = 0.20 across sessions, so
+  most of the day-to-day movement is not shared between hemispheres
+  (inferred: mostly measurement noise, not whole-structure change).
+- TIV is stable (0.11 percent), so the pipeline sanity flag is off; dividing
+  by TIV changes the hippocampal CV very little.
+- Regime offset (contraceptive minus natural cycle), hippocampus/TIV: +0.27
+  percent, Welch 95% CI -0.13 to +0.67. TIV: -0.12 percent (-0.18 to -0.06).
+  Descriptive only; confounded with year and head-case use.
+
+Association (AR(1) GLS, n = 58, rho 0.11; effect in percent of mean
+hippocampal volume per 1 SD of PSS; PSS mean 10.5, SD 6.0; block-permutation p,
+5000 permutations, alpha 0.025 per term).
+
+| Model | PSS lag 0 (95% CI), p_perm | PSS lag 1 (95% CI), p_perm |
+|---|---|---|
+| Primary (hippocampus/TIV, full covariates) | -0.24 (-0.47 to -0.01), 0.055 | -0.12 (-0.35 to +0.11), 0.30 |
+| (a) no QC covariate | -0.23 (-0.46 to -0.01), 0.055 | -0.12 (-0.35 to +0.10), 0.28 |
+| (b) raw volume | -0.25 (-0.47 to -0.02), 0.040 | -0.11 (-0.34 to +0.12), 0.34 |
+| (c) sessions 1 to 7 dropped (n = 52) | -0.19 (-0.42 to +0.05), 0.097 | -0.13 (-0.36 to +0.10), 0.26 |
+| (d) outliers dropped (none qualified) | same as primary | same as primary |
+| Secondary: amygdala/TIV | -0.24 (-0.62 to +0.14), 0.24 | +0.22 (-0.17 to +0.60), 0.24 |
+
+Decision under the pre-registered rules.
+- Noise floor: pooled CV 0.77 percent falls in the 0.5 to 1.5 percent band,
+  and its 90% CI (0.67 to 0.92) crosses neither threshold, so the call is not
+  provisional. Two single scans resolve a change of about 1.8 percent or more
+  (inferred: 1.96 x sqrt 2 x typical error 0.65); the 1 to 3
+  percent effects in the literature sit at or below that. A larger study
+  should use annualized change over 2+ years or several scans per time point,
+  with its margin recomputed from this CV.
+- Practical status: the pre-registered target, UK Biobank Tier A, is off
+  because the operator declined fee-gated data on 2026-10-09. The rule still
+  says what any free longitudinal set must offer: repeated scans per visit or
+  multi-year intervals. Choosing that dataset is open.
+- Association: NOT DETECTED. The lag-0 estimate is negative (higher stress,
+  smaller volume), partial r about -0.27, with p_perm 0.055 against an alpha
+  of 0.025. It meets neither the pre-registered alpha nor the 0.05 level in
+  the primary model, and weakens when the no-head-case sessions are dropped.
+  This is a lead to test elsewhere, not a finding. The CI excludes a drop
+  larger than about 0.5 percent per SD of PSS on the scan day.
+
+Deviations (all recorded here; none changes a decision).
+- FreeSurfer longitudinal and MRIQC were not run (declared in the
+  pre-registration before data); the quality covariate is the SynthSeg QC mean.
+- The SynthSeg batch was killed by a session restart after 50 of 60 images;
+  the remaining 10 ran in a second batch with the same code, weights and venv
+  (scripts/gm02_synthseg_batch.sh, systemd transient unit).
+- data.py first expected a "subject" column in the per-image CSVs; SynthSeg
+  writes an unnamed index column. Fixed before any result was produced.
+- Sensitivity (c) drops the outcome rows for sessions 1 to 7 but keeps their
+  PSS values as lag-1 inputs for session 8, since the exclusion concerns scan
+  quality, not the questionnaire.
+- The brief's SIMON comparison (section 6 step 7) was not run.
+
+Does not prove.
+- One person, one scanner, one pipeline. The noise floor of FSL FIRST or of
+  other people and scanners may differ.
+- Volume is net apparent tissue volume, not dendritic, synaptic, glial or
+  neuronal change.
+- Hydration (water allowed before sessions) and time of day were not measured;
+  the protocol only fixes sessions near 10:00. Either could produce a
+  day-to-day signal of this size.
+- PSS is 24-hour self-report, not cortisol; no hormone values are in the
+  dataset. The regime term is confounded with year and head-case use.
+- With 58 sessions, power is 80 percent only for |r| of about 0.40 at alpha
+  0.025. A null does not exclude smaller within-person associations.
+
+Confidence: high that the hippocampal day-to-day CV with SynthSeg on this
+scanner is near 0.7 to 0.9 percent; moderate that it transfers to other
+pipelines; low for any stress-to-volume inference.

@@ -11,7 +11,7 @@ VOL_COLS = {"total intracranial": "tiv", "left hippocampus": "hipp_l",
 
 
 def _read_one(path):
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, index_col=0)  # first column is the subject name
     if len(df) != 1:
         raise ValueError(f"expected one row in {path}, found {len(df)}")
     return df.iloc[0]
@@ -28,7 +28,6 @@ def load_synthseg(root):
             rows.append({"session": s, "failed": True})
             continue
         vol, qc = _read_one(vol_path), _read_one(qc_path)
-        qc = qc.drop(labels="subject")
         qc_names = list(qc.index)
         row = {"session": s, "failed": False}
         row.update({short: float(vol[long]) for long, short in VOL_COLS.items()})
