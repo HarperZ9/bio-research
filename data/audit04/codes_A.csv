@@ -1,0 +1,201 @@
+id,code,subtypes,hedged,multi_cite,note
+U001,NEUTRAL,,N,N,cites for the term wood wide web only
+U002,ACCURATE,,N,N,genotypes colonize several trees
+U003,NEUTRAL,,N,Y,general soil microbes background
+U004,NEUTRAL,,N,N,environmental variation background
+U005,UNCLEAR,,N,Y,"numeric refs, two claims, cannot tell which the target supports"
+U006,OVERREACH,O7;O3,N,Y,water and nutrient availability (flow) and offspring (kin) from a structure study
+U007,OVERREACH,O7;O1;O8,N,N,"interspecies nourishing; Beiler mapped one tree species, no flow"
+U008,ACCURATE,,N,N,net flow to shaded recipient via fungal linkages
+U009,ACCURATE,,N,N,up to 19 trees; growth claim attached to Simard not Beiler
+U010,UNCLEAR,,N,N,fragment
+U011,ACCURATE,,N,N,connect hosts of different species and translocate carbon
+U012,ACCURATE,,N,Y,plant and fungus multi-partner network
+U013,OVERREACH,O5,N,Y,plants connected below ground stated as general fact
+U014,OVERREACH,O2,N,N,thereby promoting succession
+U015,OVERREACH,O8,Y,Y,large better illuminated neighbours as carbon source; study used seedlings
+U016,OVERREACH,O7;O5,N,Y,highways for C and nutrients cited to a structure study
+U017,OVERREACH,O4,N,Y,sophisticated communications
+U018,OVERREACH,O2,Y,Y,"facilitating seedling growth, suggested"
+U019,NEUTRAL,,N,Y,"fungal taxa on seedlings and trees; 1997a,b may be another Simard paper"
+U020,NEUTRAL,,N,Y,"genet distances, no network claim; cited as 2009"
+U021,OVERREACH,O7;O3,N,Y,same wording as U006
+U022,UNCLEAR,,N,N,no target marker; sentence about ITSX software
+U023,OVERREACH,O4;O5,N,N,communicatory networks connect trees
+U024,NEUTRAL,,N,Y,Rhizopogon as study system
+U025,OVERREACH,O8,Y,Y,water and nutrients beyond the carbon measured
+U026,NEUTRAL,,N,Y,"soil organisms as a growth factor, no network claim"
+U027,OVERREACH,O4,N,Y,same wording as U017
+U028,UNCLEAR,,N,N,no target marker; serpentine soils
+U029,OVERREACH,O2;O8,N,N,nutrients from N2-fixer decay; survival and growth
+U030,UNCLEAR,,N,N,garbled sentence
+U031,ACCURATE,,N,N,hyphae connect hosts into networks; cited as 2008
+U032,ACCURATE,,N,N,"scale-free network, large trees hubs"
+U033,UNCLEAR,,N,N,no target marker; book anthropomorphism
+U034,ACCURATE,,Y,Y,implicated in redistribution among connected plants
+U035,ACCURATE,,N,N,describes measured net transfer to shaded fir
+U036,OVERREACH,O1,Y,N,may be significant for tree interactions
+U037,OVERREACH,O8,Y,Y,late-stage fungal community sharing; 1997b may be another paper
+U038,OVERREACH,O8;O1,Y,Y,subsidies from older trees
+U039,NEUTRAL,,N,N,mapping method
+U040,OVERREACH,O3,N,Y,hub trees known as mother trees
+U041,ACCURATE,,Y,Y,"putative network, nature unknown"
+U042,NEUTRAL,,N,Y,consistency of a site statistic
+U043,OVERREACH,O2;O8,Y,Y,understory survival via CMN from canopy trees
+U044,NEUTRAL,,N,Y,"large genets, no plant linkage claim"
+U045,OVERREACH,O7;O1;O5,N,Y,significance of resource sharing
+U046,OVERREACH,O4,N,N,communication about attacked status
+U047,UNCLEAR,,N,Y,"numeric refs, cannot map target"
+U048,ACCURATE,,N,N,links different life stages
+U049,ACCURATE,,N,N,seedlings join networks with older trees
+U050,NEUTRAL,,Y,Y,symbiosis as a factor in natural conditions
+U051,NEUTRAL,,N,Y,ECM ecology research background
+U052,ACCURATE,,Y,N,seedlings of different species share mycelium
+U053,OVERREACH,O5;O1,N,N,important roles incl. biodiversity maintenance across many forests
+U054,ACCURATE,,N,Y,networks extend over spatial scales
+U055,ACCURATE,,N,Y,conduct photosynthate among plants
+U056,UNCLEAR,,N,N,fragment
+U057,OVERREACH,O4;O5,N,Y,danger messages
+U058,OVERREACH,O3,N,N,kin recognition
+U059,ACCURATE,,N,Y,one fungus interconnects many plants
+U060,ACCURATE,,N,Y,trees interconnected by same mycelium
+U061,OVERREACH,O7,Y,N,water translocation to seedlings
+U062,ACCURATE,,N,N,links different life stages
+U063,NEUTRAL,,N,Y,"fungal patchiness, no linkage claim"
+U064,OVERREACH,O2;O8,N,Y,"seedling establishment, pine regeneration"
+U065,NEUTRAL,,N,N,site description
+U066,OVERREACH,O5,N,Y,cord networks abundant in forest floor
+U067,OVERREACH,O2;O4,N,Y,survival and defense
+U068,ACCURATE,,N,Y,fungus associates with several trees
+U069,ACCURATE,,N,N,field transfer birch to fir seedlings
+U070,ACCURATE,,Y,N,carbon transfer via mycorrhizae
+U071,ACCURATE,,N,Y,presence of common EMF network as interpretation
+U072,NEUTRAL,,Y,N,"genet size, no plant linkage claim"
+U073,UNCLEAR,,N,N,"unrelated text, no target marker"
+U074,OVERREACH,O8,N,N,diverse energy sources and resistance in senescent plots
+U075,NEUTRAL,,N,Y,list of genet studies
+U076,NEUTRAL,,N,Y,networks as metaphor
+U077,ACCURATE,,N,N,mapped architecture
+U078,ACCURATE,,Y,N,nutrient exchange through networks as a topic
+U079,UNCLEAR,,N,N,unrelated text
+U080,ACCURATE,,N,N,"label found in shaded saplings, suggestion of transfer"
+U081,OVERREACH,O2,Y,N,attributed hypothesis of benefit from shared nutrients
+U082,ACCURATE,,Y,Y,"may facilitate exchange, with counter-citation"
+U083,ACCURATE,,N,N,evidence of transfer between trees via linkages
+U084,ACCURATE,,N,Y,same host at range of growth stages
+U085,NEUTRAL,,N,Y,fungal patchiness
+U086,NEUTRAL,,N,Y,species range
+U087,OVERREACH,O8,Y,N,N and P beyond carbon measured
+U088,ACCURATE,,N,Y,definition of MN via continuous mycelium
+U089,NEUTRAL,,N,Y,symbiosis as research area
+U090,OVERREACH,O4;O7,Y,N,trees transmit information and share resources
+U091,OVERREACH,O5,N,N,entire forest one entity connected by wood wide web
+U092,OVERREACH,O2,N,Y,contributes to succession dynamics
+U093,ACCURATE,,N,N,labelled C plant to plant via hyphal connections
+U094,ACCURATE,,N,Y,individual-level common mycelial network
+U095,ACCURATE,,N,N,genets interconnect several trees; plot size misstated 20 m
+U096,ACCURATE,,Y,Y,shade affects magnitude of net transfer
+U097,OVERREACH,O8;O2,Y,Y,"water, C and N from larger trees to benefit seedlings"
+U098,OVERREACH,O2,Y,Y,networks favor seedlings
+U099,OVERREACH,O2,Y,N,facilitation attributed to birch-fir connection
+U100,ACCURATE,,N,N,hyphal pathway as authors interpreted
+U101,ACCURATE,,N,N,mapped extent and architecture
+U102,UNCLEAR,,N,Y,not in English
+U103,NEUTRAL,,N,Y,list of genet studies
+U104,NEUTRAL,,N,N,method for detecting transfer
+U105,OVERREACH,O3;O6,N,Y,confirmed preferential support among related trees
+U106,OVERREACH,O8;O2,N,Y,benefit from C and nutrients from larger trees
+U107,ACCURATE,,Y,N,cautious statement on network effects
+U108,ACCURATE,,N,N,scale-free structure observed
+U109,NEUTRAL,,N,Y,fungal species as Douglas-fir associates
+U110,OVERREACH,O6,N,N,known to form networks interconnecting trees
+U111,NEUTRAL,,N,N,planting method
+U112,UNCLEAR,,N,Y,"numeric refs, cannot map target"
+U113,ACCURATE,,N,Y,"transfer studied, significance controversial"
+U114,ACCURATE,,N,Y,carbon networks connect trees of different taxa
+U115,ACCURATE,,Y,N,Beiler cited for the term; cooperation attached to other refs
+U116,ACCURATE,,N,Y,comparison of transfer rate
+U117,NEUTRAL,,N,Y,several large genets at a site
+U118,ACCURATE,,Y,Y,residual trees as potential hubs
+U119,ACCURATE,,N,Y,contrast with individual-level network
+U120,OVERREACH,O2;O6;O8,N,Y,demonstrated seedling benefit from adult trees
+U121,ACCURATE,,N,N,microsatellite mapping of trees and genets
+U122,ACCURATE,,Y,N,transfer presumably through mycorrhizae
+U123,ACCURATE,,N,Y,source-sink dependence
+U124,OVERREACH,O8,Y,Y,C and N between plant and soil compartments
+U125,ACCURATE,,N,N,genets connect trees in 30 x 30 m
+U126,UNCLEAR,,N,N,not in English
+U127,OVERREACH,O3;O5,N,Y,woodland as collaboration
+U128,UNCLEAR,,N,N,unrelated text
+U129,OVERREACH,O8;O5,N,Y,mixotroph understory plants in CMNs
+U130,OVERREACH,O8;O5,N,N,AM Glomeromycota wood wide web
+U131,ACCURATE,,N,Y,network concept versus single-plant studies
+U132,ACCURATE,,N,Y,net transfer between linked plants
+U133,ACCURATE,,N,Y,EMF form networks; inoculum claim on other refs
+U134,ACCURATE,,N,Y,shared taxa need not be one genet
+U135,NEUTRAL,,N,Y,soil microbes transform substrates
+U136,OVERREACH,O2,N,N,networks resistant to perturbation via older trees
+U137,NEUTRAL,,N,Y,root tip method
+U138,OVERREACH,O8,Y,Y,nutrient transfer between litter sources
+U139,NEUTRAL,,N,N,autocorrelation distances
+U140,NEUTRAL,,N,Y,living versus non-living background
+U141,UNCLEAR,,N,Y,not in English
+U142,ACCURATE,,N,N,"trees interconnected, young trees within network of old trees"
+U143,OVERREACH,O8;O2,Y,N,transfer from canopy plants could promote establishment
+U144,NEUTRAL,,N,Y,13CO2 method
+U145,OVERREACH,O1;O2;O8,Y,Y,nutrient transfer; important role ameliorating competition
+U146,NEUTRAL,,N,N,pointer to prior plot study
+U147,UNCLEAR,,N,N,unrelated text
+U148,ACCURATE,,Y,Y,"putative transfer, source-sink, shed light on regeneration"
+U149,NEUTRAL,,N,Y,genet size
+U150,ACCURATE,,N,Y,mycelium connects multiple hosts
+U151,ACCURATE,,N,Y,CMNs can form in EcM communities; extent unknown
+U152,ACCURATE,,N,N,mapped networks linking Douglas-fir
+U153,UNCLEAR,,N,N,citation only
+U154,OVERREACH,O7,Y,N,"potential to transmit nutrients, from a structure study"
+U155,OVERREACH,O2,Y,N,facilitation of growth through ECM connections
+U156,NEUTRAL,,N,Y,genet sizes
+U157,ACCURATE,,N,N,network documented in a Douglas-fir stand; location misstated
+U158,OVERREACH,O6,N,Y,now well established shared resource network
+U159,OVERREACH,O5,N,N,link entire forest communities
+U160,ACCURATE,,N,N,young trees transfer carbon back and forth
+U161,UNCLEAR,,N,N,referent of such activity missing
+U162,NEUTRAL,,N,Y,depth patterns
+U163,ACCURATE,,N,N,fungi associate with plants of the same species
+U164,OVERREACH,O8,N,Y,birch benefits ECM development; not measured in the Nature study
+U165,ACCURATE,,N,Y,mediate C transfer among plants
+U166,NEUTRAL,,N,Y,isotope method
+U167,OVERREACH,O2,Y,Y,may increase survival of seedlings and shaded plants
+U168,ACCURATE,,N,N,genet mapping in 30 x 30 m plot
+U169,NEUTRAL,,N,N,lab method
+U170,ACCURATE,,Y,Y,net photosynthate movement between seedlings
+U171,ACCURATE,,N,N,"links implied, flow not demonstrated"
+U172,OVERREACH,O5;O8,Y,N,DNA exchange across all green plants
+U173,OVERREACH,O1,N,N,significant amounts of carbon transfer
+U174,ACCURATE,,N,N,"nutrient exchange, underground internet label; fragment"
+U175,ACCURATE,,Y,N,carbon flow tree to tree via shared fungi
+U176,OVERREACH,O7;O2,N,N,supports seedling establishment by moderating nutrient flow
+U177,OVERREACH,O6,N,Y,transfer as has been demonstrated
+U178,UNCLEAR,,N,N,not in English
+U179,ACCURATE,,Y,N,one tree linked to many trees; count not checkable against codebook
+U180,ACCURATE,,N,Y,13 or more genets in 30 x 30 m plot
+U181,NEUTRAL,,N,Y,host colonization background
+U182,ACCURATE,,Y,N,"genets associate with several trees, may fragment"
+U183,ACCURATE,,N,N,carbon tracked donor to recipient
+U184,OVERREACH,O8,N,N,mature trees to saplings; cited as 1998
+U185,ACCURATE,,N,Y,soil pathway consistent with the result
+U186,OVERREACH,O4;O8,N,N,nutrients and signals transferred
+U187,ACCURATE,,N,Y,networks with adult-seedling links
+U188,ACCURATE,,N,Y,scale-free hub structure
+U189,NEUTRAL,,Y,N,"plant-fungus carbon balance, no network claim"
+U190,ACCURATE,,N,N,connection by same genet is hard to document
+U191,ACCURATE,,N,N,same wording as U174
+U192,UNCLEAR,,N,Y,not in English
+U193,ACCURATE,,N,Y,species differ in network formation frequency
+U194,OVERREACH,O8,Y,Y,AM symbiosis and ecological balance
+U195,NEUTRAL,,N,Y,"caution about CMN research, pointer"
+U196,OVERREACH,O2;O8,Y,Y,mitigate overstorey competition on seedling growth
+U197,ACCURATE,,N,Y,same wording as U084
+U198,OVERREACH,O2;O1,Y,Y,importance to ecosystem health
+U199,ACCURATE,,N,Y,networks over 20 m in Douglas-fir forests
+U200,OVERREACH,O2;O8,Y,N,benefits of integration into adult root systems
