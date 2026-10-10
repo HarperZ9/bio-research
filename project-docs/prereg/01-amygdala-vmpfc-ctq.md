@@ -107,5 +107,27 @@ phenotype or connectivity value was opened (raised in
    used is named in the result. Reason: avoid an indefinite block on a
    licensing step, without changing the analysis.
 
+2026-10-10, after the first participant's preprocessing and before any CTQ
+value or any connectivity value was opened (decided from motion QC only):
+
+5. Respiration-filtered framewise displacement. The data are multiband with
+   TR = 0.8 s. In the first participant (sub-NDARINVXH435XG7) all four runs
+   failed the original rules (26 to 32 percent of volumes over FD 0.5 mm,
+   mean FD 0.36 to 0.42 mm), but the motion was confined to the
+   phase-encoding axis (trans_y) with a spectral peak at 0.33 to 0.39 Hz
+   and 5 to 16 times more power in 0.2 to 0.5 Hz than in 0.01 to 0.1 Hz:
+   breathing, not head motion. Low-pass filtered FD for the same runs had a
+   mean of 0.04 to 0.06 mm. Change: FD is computed from motion parameters
+   band-stop filtered at 0.31 to 0.43 Hz (the ABCD approach for TR 0.8 s
+   multiband data, Fair et al. 2020), and volumes with filtered FD > 0.2 mm
+   are censored. The run-exclusion rules (more than 20 percent censored, or
+   mean filtered FD > 0.3 mm) and the two-usable-runs rule are unchanged.
+   The 24 motion regressors are unchanged (unfiltered). Sensitivity
+   analysis: the original unfiltered rules, reported with the sample size
+   they leave. Reason: the original thresholds were calibrated on slower
+   single-band data and would exclude participants for breathing, which
+   could also bias the sample toward people who breathe slowly. Receipt:
+   scripts/motion_spectrum.py output for this participant.
+
 The pre-registration body above is unchanged; its frozen hash in HASHES.md
 refers to the version before this section was filled in.
