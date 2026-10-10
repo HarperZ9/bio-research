@@ -129,5 +129,29 @@ value or any connectivity value was opened (decided from motion QC only):
    could also bias the sample toward people who breathe slowly. Receipt:
    scripts/motion_spectrum.py output for this participant.
 
+2026-10-10, correction to deviation 5, still before any CTQ or connectivity
+value was opened:
+
+5a. Deviation 5 contained an error by the lead. Its supporting numbers
+   (filtered mean FD 0.04 to 0.06 mm) came from a 0.1 Hz low-pass check,
+   but the rule it specified was the ABCD band-stop at 0.31 to 0.43 Hz.
+   Implemented as written (commit 0660f93), the band-stop leaves the first
+   participant with 0 of 4 usable runs: 54 to 71 percent of the remaining
+   phase-encoding-axis power lies at 0.1 to 0.31 Hz, below the band.
+   Corrected rule, taken from Gratton et al. 2020 (NeuroImage 217:116866,
+   Methods read 2026-10-10): FD is computed from motion parameters low-pass
+   filtered at 0.1 Hz (first-order Butterworth, zero-phase, padded);
+   frames with filtered FD > 0.1 mm are censored, along with uncensored
+   segments shorter than 5 frames. Run exclusion (more than 20 percent
+   censored) and the two-usable-runs rule are unchanged; the mean-FD run
+   rule and the mean-FD covariate use the same filtered FD (covariate:
+   mean filtered FD over usable runs). Gratton et al. validated this on
+   single-band data and note that earlier work used notch filters for
+   multiband data; here the notch demonstrably fails, so the low-pass is
+   used outside its validated setting, which the write-up must state.
+   Sensitivity analyses, each reported with the sample it leaves: (a) the
+   original unfiltered rule, (b) the ABCD band-stop rule of deviation 5,
+   (c) the stricter Gratton threshold of 0.08 mm.
+
 The pre-registration body above is unchanged; its frozen hash in HASHES.md
 refers to the version before this section was filled in.
