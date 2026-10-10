@@ -1,0 +1,34 @@
+# Gene set M, project 07 microtubule-regulator screen. Mouse symbols, one per line.
+# Frozen before any expression data was opened. Lines starting with # are ignored.
+Tuba1a
+Tubb2a
+Tubb3
+Mapt
+Map2
+Map1a
+Map1b
+Map6
+Dcx
+Mapre1
+Mapre3
+Stmn1
+Stmn2
+Stmn3
+Stmn4
+Spast
+Katna1
+Katnb1
+Kif5a
+Kif5b
+Kif5c
+Atat1
+Hdac6
+Sirt2
+Ttll1
+Ttll6
+Ttll7
+Agtpbp1
+Agbl5
+Vash1
+Vash2
+Svbp
