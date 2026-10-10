@@ -9,3 +9,5 @@ Append-only. Times are local (Pacific), 2026-10-09.
 | 2 | Pre-registration v2 committed: held-out C = GSE72343 PFC (fallback GSE161726); no expression data downloaded | c936dd6 | 07-microtubule-screen.md v2: b21b3093bb94606b859e21ddf675fe3a0e4f1c62020c5ac54f429c2287fbd1ca |
 | 3 | Downloads (processed files only) recorded in 07-DATA.md; GSE72343 had no per-sample values, fallback GSE161726 used | commit adding this row | see 07-DATA.md |
 | 4 | Analysis run as pre-registered; result NULL in discovery (p DOWN 0.31), positive control failed in discovery; entry F-07-1 in FINDINGS.md | commit adding this row | 07-results/07-results.json: dfdf65d5dc5ca6b3f741585f3299b708462d6403f7706ef42ffb2b1989f566f9 |
+
+Note on step 4: the 07-results.json SHA-256 above is of the file as written by the run (CRLF line endings, also at H:io-data\screen07esults). The committed blob is LF-normalized by .gitattributes; its SHA-256 is 5f60b0540d54ad89f584ac1e684a89031765e4579ea561fe09a594b734f03865.
