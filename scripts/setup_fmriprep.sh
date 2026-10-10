@@ -14,7 +14,10 @@ if ! command -v apptainer >/dev/null; then
   apt-get install -y -qq apptainer >/dev/null
 fi
 apptainer --version
-export APPTAINER_TMPDIR="$DATA/apptainer-tmp" APPTAINER_CACHEDIR="$DATA/apptainer-cache"
+# Scratch on the native ext4 disk (E:-backed vhdx): unpacking tens of thousands
+# of small files over the /mnt/h 9p mount took 3+ hours without finishing.
+export APPTAINER_TMPDIR=/root/apptainer-tmp APPTAINER_CACHEDIR=/root/apptainer-cache
+mkdir -p "$APPTAINER_TMPDIR" "$APPTAINER_CACHEDIR"
 SIF="$DATA/containers/fmriprep-$VERSION.sif"
 [ -f "$SIF" ] || apptainer build "$SIF" "docker://nipreps/fmriprep:$VERSION"
 ls -la "$SIF"
