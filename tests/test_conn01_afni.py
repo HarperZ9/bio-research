@@ -19,6 +19,7 @@ from conn01 import afni_prep as ap
 from conn01 import afni_qc as aq
 from conn01 import atlas, extract
 from conn01 import denoise as dn
+from conn01 import motion
 from conn01 import participant as pt
 
 
@@ -109,7 +110,7 @@ def test_build_confounds_feeds_denoise_unchanged():
     assert x.shape == (t, 1 + 24 + n_cc + n_cos)
     assert dn.design_matrix(table, meta, gsr=True).shape[1] == x.shape[1] + 1
     assert "non_steady_state_outlier00" in table and "non_steady_state_outlier01" not in table
-    q = dn.run_qc(table)
+    q = dn.run_qc(table, motion.repetition_time(meta))  # TR from the JSON (deviation 5)
     assert q.n_volumes == t and np.isfinite(q.mean_fd)
     with pytest.raises(ValueError):
         ac.build_confounds(dfile[:-1], _series(rng, t), np.zeros(t), 0.8, 0)
@@ -233,7 +234,9 @@ def test_afni_outputs_run_through_extract_and_participant_unchanged(tmp_path, mo
                                       tmp_path / "conn01", receipt)
     qc = json.loads((out / "sub-AFN01_qc.json").read_text())
     assert set(qc) == {"participant", "fmriprep_generated_by", "n_runs", "n_usable_runs",
-                       "meets_min_usable_runs", "acompcor_min_used", "sdc", "regions", "runs"}
+                       "meets_min_usable_runs", "acompcor_min_used", "sdc", "regions", "runs",
+                       "fd_rule", "n_usable_runs_unfiltered",
+                       "meets_min_usable_runs_unfiltered"}
     assert qc["fmriprep_generated_by"][0]["Name"] == "AFNI"
     assert qc["acompcor_min_used"]["WM"] >= 1 and qc["acompcor_min_used"]["CSF"] >= 1
     assert set(qc["runs"][0]) >= {"run", "n_volumes", "n_censored", "mean_fd", "usable",

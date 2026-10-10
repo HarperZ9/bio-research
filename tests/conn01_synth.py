@@ -11,18 +11,29 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from conn01 import denoise as dn  # noqa: E402
 
+MOTION_6 = ["trans_x", "trans_y", "trans_z", "rot_x", "rot_y", "rot_z"]
 REGIONS = ["amygdala_l", "amygdala_r", "amygdala_bilateral", "vmpfc_fmc",
            "subcallosal"]
 
 
 def confounds(t: int, rng: np.random.Generator, fd: np.ndarray | None = None,
-              n_wm: int = 7, n_csf: int = 7) -> tuple[pd.DataFrame, dict]:
-    """Confounds table and JSON metadata shaped like fMRIPrep output."""
+              n_wm: int = 7, n_csf: int = 7,
+              tr: float = 0.8) -> tuple[pd.DataFrame, dict]:
+    """Confounds table and JSON metadata shaped like fMRIPrep output.
+
+    fd sets fMRIPrep's framewise_displacement column, which only the
+    original (unfiltered) FD rule reads.
+    """
     cols = {c: rng.normal(size=t) for c in dn.MOTION_24}
+    # The six base parameters are a small random walk (mm, rad), so the
+    # filtered FD rule (deviation 5) sees realistic, low motion.
+    steps = rng.normal(size=(t, 6)) * np.array([0.01] * 3 + [0.0002] * 3)
+    for j, c in enumerate(MOTION_6):
+        cols[c] = np.cumsum(steps[:, j])
     for c in dn.MOTION_24:
         if "derivative1" in c:
             cols[c][0] = np.nan
-    meta = {}
+    meta = {"RepetitionTime": tr}
     idx = 0
     for mask, n in (("CSF", n_csf), ("WM", n_wm), ("combined", 3)):
         for j in range(n):

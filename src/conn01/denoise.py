@@ -4,9 +4,14 @@ Regressors: 24 motion parameters, aCompCor (top 5 white-matter plus top 5 CSF
 components; per deviation 1 of 2026-10-09, the available components up to 5
 per mask when fMRIPrep retains fewer), all cosine drift terms; no global
 signal in the primary model.
-Censoring: volumes with FD > 0.5 mm. A run is unusable if more than 20% of its
-volumes are censored or its mean FD > 0.3 mm. A participant needs >= 2 usable
-runs.
+Censoring (deviation 5 of 2026-10-10, the primary rule "filtered"): FD is
+computed from the six motion parameters after a 0.31 to 0.43 Hz band-stop
+filter (conn01.motion), and volumes with filtered FD > 0.2 mm are censored.
+The original rule ("unfiltered", kept as the pre-registered sensitivity
+analysis) uses fMRIPrep's framewise_displacement column and censors FD >
+0.5 mm. Under both rules a run is unusable if more than 20% of its volumes
+are censored or its mean FD > 0.3 mm, and a participant needs >= 2 usable
+runs. The 24 motion regressors are never filtered.
 
 Denoising is applied to region-mean time series. Ordinary least squares
 residualization is linear, so the mean of voxelwise residuals equals the
@@ -20,7 +25,14 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-FD_CENSOR_MM = 0.5
+from . import motion
+
+RULE_FILTERED = "filtered"
+RULE_UNFILTERED = "unfiltered"
+RULES = (RULE_FILTERED, RULE_UNFILTERED)
+FD_CENSOR_MM = 0.5  # original (unfiltered) rule
+FD_CENSOR_FILTERED_MM = 0.2  # deviation 5
+CENSOR_MM = {RULE_FILTERED: FD_CENSOR_FILTERED_MM, RULE_UNFILTERED: FD_CENSOR_MM}
 MAX_CENSORED_FRACTION = 0.20
 MAX_RUN_MEAN_FD_MM = 0.3
 MIN_USABLE_RUNS = 2
@@ -45,9 +57,23 @@ class RunQC:
     reason: str
 
 
-def fd_series(confounds: pd.DataFrame) -> np.ndarray:
-    """Framewise displacement; the undefined first value is set to 0."""
-    return confounds["framewise_displacement"].fillna(0.0).to_numpy(float)
+def _check_rule(rule: str) -> None:
+    if rule not in RULES:
+        raise ValueError(f"unknown FD rule {rule!r}; use one of {RULES}")
+
+
+def fd_series(confounds: pd.DataFrame, tr: float | None = None,
+              rule: str = RULE_FILTERED) -> np.ndarray:
+    """FD per volume under a rule; the undefined first value is 0.
+
+    "filtered" needs the run's TR; "unfiltered" is fMRIPrep's column.
+    """
+    _check_rule(rule)
+    if rule == RULE_UNFILTERED:
+        return confounds["framewise_displacement"].fillna(0.0).to_numpy(float)
+    if tr is None:
+        raise ValueError("the filtered FD rule needs the run's repetition time")
+    return motion.filtered_fd(confounds, tr)
 
 
 def censor_mask(fd: np.ndarray, threshold: float = FD_CENSOR_MM) -> np.ndarray:
@@ -55,22 +81,46 @@ def censor_mask(fd: np.ndarray, threshold: float = FD_CENSOR_MM) -> np.ndarray:
     return ~(np.asarray(fd) > threshold)
 
 
-def run_qc(confounds: pd.DataFrame) -> RunQC:
-    """Apply the pre-registered run exclusion rules to one run."""
-    fd = fd_series(confounds)
-    keep = censor_mask(fd)
+def keep_mask(confounds: pd.DataFrame, tr: float | None = None,
+              rule: str = RULE_FILTERED) -> np.ndarray:
+    """Volumes kept under a rule (its FD series and its threshold)."""
+    return censor_mask(fd_series(confounds, tr, rule), CENSOR_MM[rule])
+
+
+def run_qc(confounds: pd.DataFrame, tr: float | None = None,
+           rule: str = RULE_FILTERED) -> RunQC:
+    """Apply the run exclusion rules to one run under the chosen FD rule."""
+    fd = fd_series(confounds, tr, rule)
+    keep = censor_mask(fd, CENSOR_MM[rule])
     n = len(fd)
     n_cens = int((~keep).sum())
     frac = n_cens / n if n else 1.0
     # Mean FD over defined values (the first volume has no FD).
-    raw = confounds["framewise_displacement"].to_numpy(float)
-    mean_fd = float(np.nanmean(raw)) if np.isfinite(raw).any() else float("nan")
+    if rule == RULE_UNFILTERED:
+        raw = confounds["framewise_displacement"].to_numpy(float)
+        mean_fd = float(np.nanmean(raw)) if np.isfinite(raw).any() else float("nan")
+    else:
+        mean_fd = float(np.mean(fd[1:])) if n > 1 else float("nan")
     reasons = []
     if frac > MAX_CENSORED_FRACTION:
         reasons.append("censored_fraction>0.20")
     if not mean_fd <= MAX_RUN_MEAN_FD_MM:
         reasons.append("mean_fd>0.3")
     return RunQC(n, n_cens, mean_fd, frac, not reasons, ";".join(reasons))
+
+
+def run_qc_both(confounds: pd.DataFrame, tr: float) -> dict:
+    """QC record fields under the primary (filtered) and original rules."""
+    f = run_qc(confounds, tr, RULE_FILTERED)
+    u = run_qc(confounds, tr, RULE_UNFILTERED)
+    return {**vars(f), "fd_rule": RULE_FILTERED, "tr_s": float(tr),
+            "fd_filter": motion.FILTER_DESC,
+            "censor_threshold_mm_filtered": FD_CENSOR_FILTERED_MM,
+            "censor_threshold_mm_unfiltered": FD_CENSOR_MM,
+            "mean_fd_filtered": f.mean_fd, "mean_fd_unfiltered": u.mean_fd,
+            "n_censored_filtered": f.n_censored, "n_censored_unfiltered": u.n_censored,
+            "usable_filtered": f.usable, "usable_unfiltered": u.usable,
+            "reason_unfiltered": u.reason}
 
 
 COMPCOR_PREFIXES = ("a_comp_cor_", "c_comp_cor_", "w_comp_cor_")
@@ -123,9 +173,15 @@ def residualize(y: np.ndarray, x: np.ndarray) -> np.ndarray:
 
 
 def run_connectivity(ts: pd.DataFrame, confounds: pd.DataFrame, meta: dict,
-                     pairs: list[tuple[str, str]], gsr: bool = False) -> dict[str, float]:
-    """Fisher z of the Pearson r for each region pair in one run."""
-    keep = censor_mask(fd_series(confounds))
+                     pairs: list[tuple[str, str]], gsr: bool = False,
+                     rule: str = RULE_FILTERED) -> dict[str, float]:
+    """Fisher z of the Pearson r for each region pair in one run.
+
+    The TR for the filtered rule is meta["RepetitionTime"] (participant.py
+    adds it from the QC JSON when the confounds JSON lacks it).
+    """
+    tr = motion.repetition_time(meta) if rule == RULE_FILTERED else None
+    keep = keep_mask(confounds, tr, rule)
     x = design_matrix(confounds, meta, gsr)[keep]
     if x.shape[0] <= x.shape[1] + 2:
         raise ValueError("too few retained volumes for the nuisance model")

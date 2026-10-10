@@ -174,6 +174,7 @@ def build_confounds(dfile: np.ndarray, series: dict[str, np.ndarray],
                        acc, cosine_and_nss(n, tr, skip)], axis=1)
     meta.update({c: {"Method": "Mean"} for c in ("global_signal", "csf", "white_matter")})
     meta["framewise_displacement"] = {"Units": "mm"}
+    meta["RepetitionTime"] = float(tr)  # read by the filtered FD rule (deviation 5)
     return table, meta
 
 

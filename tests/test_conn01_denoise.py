@@ -22,7 +22,8 @@ def test_run_excluded_when_more_than_20_percent_censored():
     rng = np.random.default_rng(0)
     ok, _ = syn.confounds(100, rng, fd=_fd_with(100, 20, base=0.01))
     bad, _ = syn.confounds(100, rng, fd=_fd_with(100, 21, base=0.01))
-    q_ok, q_bad = dn.run_qc(ok), dn.run_qc(bad)
+    # Planted FD column: the original (unfiltered) rule, kept as sensitivity.
+    q_ok, q_bad = dn.run_qc(ok, rule=dn.RULE_UNFILTERED), dn.run_qc(bad, rule=dn.RULE_UNFILTERED)
     assert q_ok.censored_fraction == pytest.approx(0.20) and q_ok.usable
     assert q_bad.n_censored == 21 and not q_bad.usable
     assert "censored_fraction" in q_bad.reason
@@ -31,10 +32,10 @@ def test_run_excluded_when_more_than_20_percent_censored():
 def test_run_excluded_when_mean_fd_above_0_3():
     rng = np.random.default_rng(1)
     conf, _ = syn.confounds(200, rng, fd=np.full(200, 0.31))
-    q = dn.run_qc(conf)
+    q = dn.run_qc(conf, rule=dn.RULE_UNFILTERED)
     assert q.n_censored == 0 and not q.usable and q.reason == "mean_fd>0.3"
     conf2, _ = syn.confounds(200, rng, fd=np.full(200, 0.299))
-    assert dn.run_qc(conf2).usable
+    assert dn.run_qc(conf2, rule=dn.RULE_UNFILTERED).usable
 
 
 def test_compcor_picks_top_five_per_mask_by_singular_value():
@@ -105,10 +106,10 @@ def test_censored_volumes_do_not_influence_connectivity():
     fd[spikes] = 2.0
     conf, meta = syn.confounds(400, rng, fd=fd)
     ts = syn.regions(conf, rng, coupling=0.3)
-    base = dn.run_connectivity(ts, conf, meta, [pt.PRIMARY])
+    base = dn.run_connectivity(ts, conf, meta, [pt.PRIMARY], rule=dn.RULE_UNFILTERED)
     ts2 = ts.copy()
     ts2.loc[spikes, ["amygdala_bilateral", "vmpfc_fmc"]] += 1e4
-    assert dn.run_connectivity(ts2, conf, meta, [pt.PRIMARY]) == pytest.approx(base)
+    assert dn.run_connectivity(ts2, conf, meta, [pt.PRIMARY], rule=dn.RULE_UNFILTERED) == pytest.approx(base)
 
 
 def test_region_mean_denoising_equals_voxelwise_then_mean():
@@ -130,15 +131,15 @@ def test_participant_needs_two_usable_runs_and_averages_only_usable():
     rng = np.random.default_rng(8)
     good1, good2 = _run(rng), _run(rng)
     bad = _run(rng, fd=_fd_with(500, 200))
-    s = pt.summarize_runs([good1, bad, good2])
+    s = pt.summarize_runs([good1, bad, good2], rule=dn.RULE_UNFILTERED)
     assert s["n_runs"] == 3 and s["n_usable_runs"] == 2 and s["included"]
-    z1 = dn.run_connectivity(*good1, pt.ALL_PAIRS)
-    z2 = dn.run_connectivity(*good2, pt.ALL_PAIRS)
+    z1 = dn.run_connectivity(*good1, pt.ALL_PAIRS, rule=dn.RULE_UNFILTERED)
+    z2 = dn.run_connectivity(*good2, pt.ALL_PAIRS, rule=dn.RULE_UNFILTERED)
     key = "amygdala_bilateral__vmpfc_fmc"
     assert s[f"z__{key}"] == pytest.approx((z1[key] + z2[key]) / 2)
     assert s["n_retained"] == 1000
     fds = np.concatenate([good1[1]["framewise_displacement"],
                           good2[1]["framewise_displacement"]])
     assert s["mean_fd"] == pytest.approx(np.nanmean(fds))
-    one = pt.summarize_runs([good1, bad, _run(rng, fd=np.full(500, 0.4))])
+    one = pt.summarize_runs([good1, bad, _run(rng, fd=np.full(500, 0.4))], rule=dn.RULE_UNFILTERED)
     assert one["n_usable_runs"] == 1 and not one["included"]

@@ -3,7 +3,7 @@
   python -I -m conn01.run_analysis --conn-root /mnt/h/bio-data/ds005237/conn01 \
       --ctq PHENO/ctq01.tsv --demos PHENO/demos.tsv --out results01.json \
       --id-col <col> --age-col <col> --sex-col <col> [--site-col <col>] \
-      [--group-col <col>]
+      [--group-col <col>] [--fd-rule filtered|unfiltered]
 
 Column names in the phenotype tables were not read when this was written
 (the hard rule kept phenotype contents unopened); they are arguments. If a
@@ -12,6 +12,12 @@ names, never values. Without --site-col the scanner InstitutionName from the
 BIDS sidecars is used as site. The results JSON holds the primary and
 secondary tests (Holm across both) and the exploratory sensitivity
 analyses, labelled as exploratory.
+
+FD rule (prereg 01 deviation 5): censoring and run exclusion use the
+respiration-filtered FD by default. --fd-rule unfiltered runs the main table
+under the original rule instead. Either way the sensitivity list holds the
+other rule ("fd_rule_unfiltered" or "fd_rule_filtered") with its sample size,
+which is the pre-registered sensitivity analysis of deviation 5.
 """
 from __future__ import annotations
 
@@ -23,6 +29,7 @@ from pathlib import Path
 import pandas as pd
 
 from . import analyze as an
+from . import denoise as dn
 from . import participant as pt
 
 PRIMARY_Z = "z__amygdala_bilateral__vmpfc_fmc"
@@ -50,9 +57,10 @@ def scanner_site(conn_root: Path, pid: str) -> str | None:
     return (runs[0].get("scanner") or {}).get("InstitutionName") if runs else None
 
 
-def assemble(a: argparse.Namespace, gsr: bool = False) -> pd.DataFrame:
+def assemble(a: argparse.Namespace, gsr: bool = False,
+             rule: str | None = None) -> pd.DataFrame:
     """Merge outcomes, CTQ and demographics; keep included participants."""
-    out = pt.build_outcome_table(a.conn_root, gsr=gsr)
+    out = pt.build_outcome_table(a.conn_root, gsr=gsr, rule=rule or a.fd_rule)
     ctq = read_table(a.ctq, a.id_col, an.CTQ_SUBSCALES + ["ctqscore_val"])
     demo_cols = [a.age_col, a.sex_col] + [c for c in (a.site_col, a.group_col) if c]
     demos = read_table(a.demos, a.id_col, demo_cols)
@@ -77,8 +85,14 @@ CATEGORICAL = ["sex", "site"]
 
 
 def sensitivity(a: argparse.Namespace, df: pd.DataFrame) -> list[dict]:
-    """The five prereg sensitivity analyses plus the deviation 1 aCompCor one."""
+    """The five prereg sensitivity analyses plus the deviation 1 aCompCor one
+    and the deviation 5 FD rule one (the rule not used for the main table)."""
     res = []
+    other = (dn.RULE_UNFILTERED if a.fd_rule == dn.RULE_FILTERED
+             else dn.RULE_FILTERED)
+    odf = assemble(a, rule=other)
+    res += _tag(f"fd_rule_{other}", an.primary_and_secondary(
+        odf, PRIMARY_Z, SECONDARY_Z, NUMERIC, CATEGORICAL))
     gdf = assemble(a, gsr=True)
     res += _tag("gsr", an.primary_and_secondary(gdf, PRIMARY_Z, SECONDARY_Z,
                                                 NUMERIC, CATEGORICAL))
@@ -119,6 +133,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sex-col", required=True)
     ap.add_argument("--site-col")
     ap.add_argument("--group-col")
+    ap.add_argument("--fd-rule", choices=dn.RULES, default=dn.RULE_FILTERED,
+                    help="censoring/exclusion FD rule for the main table "
+                         "(deviation 5: filtered is primary, unfiltered is the "
+                         "original rule)")
     ap.add_argument("--compcor-full-only", action="store_true",
                     help="deviation 1 sensitivity as the main table: keep only "
                          "participants with 5 aCompCor components per mask")
@@ -130,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
     result = {"prereg_sha256": "4d4681b9f44188b37e60fd9c53d94a85e01cd1529f4d2be7228a42a3ff36f753",
               "n_after_merge": int(len(df)), "registered": primary,
               "sensitivity": sensitivity(a, df),
-              "compcor_full_only": a.compcor_full_only}
+              "compcor_full_only": a.compcor_full_only, "fd_rule": a.fd_rule}
     a.out.write_text(json.dumps(result, indent=2, default=float))
     print(f"[run_analysis] wrote {a.out}")
     return 0
