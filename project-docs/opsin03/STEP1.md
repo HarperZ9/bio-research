@@ -119,3 +119,7 @@ The test fails (strict xfail). Williams saturates at lower light. Other differen
 ## Lead decision, 2026-10-10
 
 The 10% agreement exit criterion fired. Decision: do not exit; carry both ChR2 parameter sets (PyRhO file at dade008 and a Python port of Williams 2013) into the circuit step. Any circuit-level prediction that changes direction or rank between the two sets is reported as model-dependent, not as a prediction. Reason: the disagreement is itself the step-1 finding, and choosing one set would hide it.
+
+## Step 2 status, 2026-10-10
+
+Step 2 (inhibitory opsin and chloride module) was stopped by a safety classifier before any file was written. Per standing practice it is not being re-attempted in reworded form. Track 03 ends at step 1: the two ChR2 parameter sets and their documented disagreement are the deliverable. Re-opening step 2 is the operator's decision.
