@@ -92,5 +92,20 @@ phenotype or connectivity value was opened (raised in
    correction, recorded in the QC receipt. Reason: vmPFC sits in the region
    most affected by susceptibility distortion and dropout.
 
+2026-10-10, before any participant was preprocessed:
+
+4. Preprocessing fallback. fMRIPrep requires a FreeSurfer license even with
+   `--fs-no-reconall`, and the operator does not hold one yet. If the license
+   is not in place when the AFNI path below passes its synthetic and
+   one-participant checks, preprocess with AFNI `afni_proc.py` instead:
+   same output space (MNI152NLin2009cAsym, 2 mm), the same 24 motion
+   parameters, aCompCor (5 WM + 5 CSF from eroded masks, computed the same
+   way as in the fMRIPrep path), cosine drift terms, the same censoring and
+   run-exclusion rules, and reverse-phase-encoding distortion correction
+   (`-blip_reverse_dset`) where the field maps allow it. The whole sample
+   uses one pipeline; no participant mixes the two. Whichever pipeline is
+   used is named in the result. Reason: avoid an indefinite block on a
+   licensing step, without changing the analysis.
+
 The pre-registration body above is unchanged; its frozen hash in HASHES.md
 refers to the version before this section was filled in.
