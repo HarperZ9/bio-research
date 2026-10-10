@@ -184,3 +184,110 @@ Does not prove.
 - A null with 6 vs 12 animals does not exclude small effects; the held-out C
   signal is fragile and from low-input libraries with visible PCA outliers (no
   sample removed).
+
+## F-07b-1 (2026-10-09). Stress-linked tau phosphosites, mouse mPFC after CUMS (PXD016302): weak null
+
+Question. In mouse mPFC after chronic unpredictable mild stress, are the tau
+sites that antibody studies reported as stress-increased (human 2N4R S202, T205,
+T231, S396, S404, S409; Sotiropoulos 2011, Rissman 2012, both re-read from full
+text) higher in the deposited label-free phospho table? Decision informed (brief
+07b): whether the protein-level arm continues on deposited tables or moves to
+raw-file reanalysis or new tissue.
+
+Receipts.
+- Pre-registration: project-docs/prereg/07b-phospho-tau.md, commit 05cb868,
+  SHA-256 d9b5ce94...a573fc (HASHES.md), committed before any table was
+  downloaded.
+- Data receipts (URLs, bytes, SHA-256, licences): project-docs/prereg/07b-DATA.md.
+  Data under H:\bio-data\proteomics. PXD024829 files match the deposited SHA-1.
+- Code: src/phospho07b/ (Python 3.12, numpy/scipy/pandas). Run from src/:
+  `python -m phospho07b.run posctl --data H:/bio-data/proteomics/PXD024829 --fasta H:/bio-data/proteomics/ref/mouse_sprot_iso.fasta.gz --out ...`
+  and `python -m phospho07b.run primary --data H:/bio-data/proteomics/PXD016302 --control A B C --stress D E F --out ...`.
+  Outputs: project-docs/prereg/07b-results/*.json.
+- Tests: tests/test_phospho07b_{stats,settest,seqmap,loaders}.py, 22 passed
+  (planted effect recovered; exact 3 vs 3 permutation p = 1/20 one-sided and
+  2/20 two-sided at the floor; rotation test calibrated on correlated null sets,
+  at most 12 of 100 calls; the independent random-set test overcalls the same
+  correlated sets, the F-07-1 lesson; decision-rule branches).
+- Numbering: mouse site = human 2N4R minus 11 in P10637-2; in canonical P10637,
+  human S202/T205/T231/S396/S404/S409 = mouse S494/T497/T523/S688/S696/S701. The
+  "Mapt T523" of PXD057176 is human T231.
+
+Positive control (PXD024829, dHC, 6 min swim vs home cage, 6 vs 7 mice). PASS.
+Syn1 pS553: log2FC +1.35 (about 2.5-fold; the paper's western gave about
+3-fold), moderated t 6.12, Hedges g 3.47, exact permutation p_UP = 1/1716 (the
+observed labeling ranks first of all 1,716). 643 of 7,781 tested sites at BH
+q < 0.05 (the paper reported 847 modified peptides with its own pipeline).
+
+Primary (PXD016302 mPFC, control+saline A-C vs CUMS+saline D-F, 3 vs 3).
+Coverage gate passed: 5 of 6 primary sites quantified in all 6 samples; S409
+absent. 12,230 sites after filters; 7,075 testable.
+
+| Site (human / mouse canonical) | log2FC CUMS - control | Moderated t | Hedges g |
+|---|---|---|---|
+| S202 / S494 | +0.42 | 1.30 | 0.79 |
+| T205 / T497 | +0.05 | 0.18 | 0.12 |
+| T231 / T523 | -0.05 | -0.21 | -0.15 |
+| S396 / S688 | +0.21 | 1.04 | 1.15 |
+| S404 / S696 | -0.92 | -1.12 | -0.58 |
+| S409 / S701 | not quantified | | |
+| Secondary S262 / S554 | +0.06 | 0.19 | 0.12 |
+| Secondary S356 / S648 | -0.68 | -2.52 | -1.71 |
+
+Set level (5 sites): mean moderated t S = +0.24; mean log2FC -0.06; set-score
+difference -0.06, Welch 95% CI -0.72 to +0.60. Exact permutation p_UP = 0.30
+(observed labeling ranks 6th of 20; two-sided 0.60). Rotation p_UP = 0.28.
+Percentile among 1,000 intensity-matched single-protein random sets: 66.8;
+among independent random sets: 61.3. Leave-one-site-out S: -0.03 to +0.58.
+
+Controls in PXD016302.
+- Reproduction check: PASS (Rims1 S790 log2FC -1.12, t -4.04; criterion was any
+  Rims1 site <= -0.5). Map2 sites ran both ways (descriptive).
+- Ribosomal set (9 sites on Rpl12, Rpl14, Rpl23a, Rpl34, Rpl4, Rps10, Rps27, Rps28,
+  Rps3): permutation two-sided 0.10 (the floor), rotation two-sided 0.38 (6
+  complete sites), independent random-set percentile 8.7, single-protein
+  percentile 11.1. Not flagged by the miscalibration rule.
+- Calibration panel: 200 random single-protein 5-site sets, 7% at rotation
+  two-sided p < 0.05 (limit 15%). PASS.
+- Context only: Mapt protein groups in proteinGroups.txt (from the enriched
+  run) log2FC +0.30 and +0.09.
+
+Decision under the pre-registered rule: NULL, weak (a 1.5-fold rise not
+excluded). No SUGGESTIVE criterion was met. The upper CI bound (+0.60) sits just
+above log2(1.5) = 0.585, so a 1.5-fold rise is not excluded. Confidence: high
+that the pre-registered test is null on this table; low power (3 vs 3, possibly
+pooled) means "no rise" is not shown.
+
+Deviations (none changed a decision rule):
+1. A mouse Swiss-Prot reference FASTA was downloaded to place Spectronaut
+   peptides (positive control); the pre-registration did not name it.
+2. The rotation test uses complete-case set rows only (tau 5 of 5; ribosomal 6
+   of 9); the calibration panel draws from complete-case sites. Not specified
+   in the pre-registration.
+3. Random-set eligibility = sites with at least 2 values per group (the site
+   analysis filter); the pre-registration said "eligible" without definition.
+4. The PXD016302 table holds 18 undescribed XY-1..XY-18 sample columns. Only
+   letter columns A-F were used, which match labeled raw-file names. Labels
+   judged unambiguous for A-F.
+5. Tau rows in PXD016302 sit on TrEMBL A0A0A0MQC7, whose numbering equals
+   P10637 canonical; matching was by 15-mer window as pre-registered.
+6. Unquantified sites print a Hedges g in the JSON (computed from fewer than 2
+   values per group); those values are not used anywhere.
+
+Next step (change trigger): replication in a second deposited set
+(PXD057176 hippocampus or PXD050750 rat hippocampus), with the same code and a
+new pre-registration, before any claim; mPFC alone cannot settle the question.
+
+Does not prove.
+- A null in mouse mPFC does not contradict the antibody results: those were rat
+  hippocampus and PFC (Sotiropoulos) and mouse hippocampus (Rissman, who saw
+  no change in mouse isocortex).
+- MS single sites are not the joint antibody epitopes (AT8, PHF-1).
+- The three replicates per group may be splits of one pooled homogenate of four
+  mice (paper text); if so, the effective n is one animal pool per group.
+- Phospho change was not adjusted for total tau; no paired global proteome.
+- Tissue was taken 1 h after an injection in both arms; acute injection stress
+  may mask or mimic chronic effects.
+- Nothing here measures microtubule stability. The positive control shows the
+  pipeline detects a fast, large site change in 6 vs 7 animals, not that it
+  would detect a small chronic one in 3 vs 3.

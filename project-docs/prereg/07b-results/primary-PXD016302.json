@@ -1,0 +1,1001 @@
+{
+ "samples": {
+  "control": [
+   "A",
+   "B",
+   "C"
+  ],
+  "stress": [
+   "D",
+   "E",
+   "F"
+  ]
+ },
+ "n_sites": 12230,
+ "n_valid": 7075,
+ "prior_d0": 2.6613924358480165,
+ "prior_s0sq": 0.11922771979431052,
+ "tau_table_keys": {
+  "S202": [
+   "A0A0A0MQC7_S494"
+  ],
+  "T205": [
+   "A0A0A0MQC7_T497"
+  ],
+  "T231": [
+   "A0A0A0MQC7_T523"
+  ],
+  "S396": [
+   "A0A0A0MQC7_S688"
+  ],
+  "S404": [
+   "A0A0A0MQC7_S696"
+  ],
+  "S409": [],
+  "S262": [
+   "A0A0A0MQC7_S554"
+  ],
+  "S356": [
+   "A0A0A0MQC7_S648"
+  ]
+ },
+ "primary_sites": [
+  {
+   "site": "TAU_S202",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": 0.4171,
+   "t": 1.3039,
+   "hedges_g": 0.7948
+  },
+  {
+   "site": "TAU_T205",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": 0.0489,
+   "t": 0.1765,
+   "hedges_g": 0.1166
+  },
+  {
+   "site": "TAU_T231",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": -0.0528,
+   "t": -0.2103,
+   "hedges_g": -0.1512
+  },
+  {
+   "site": "TAU_S396",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": 0.2088,
+   "t": 1.0415,
+   "hedges_g": 1.1509
+  },
+  {
+   "site": "TAU_S404",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": -0.9213,
+   "t": -1.1235,
+   "hedges_g": -0.5826
+  },
+  {
+   "site": "TAU_S409",
+   "quantified": false
+  }
+ ],
+ "secondary_sites": [
+  {
+   "site": "TAU_S262",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": 0.0579,
+   "t": 0.1895,
+   "hedges_g": 0.118
+  },
+  {
+   "site": "TAU_S356",
+   "quantified": true,
+   "n_stress": 3,
+   "n_control": 3,
+   "lfc": -0.6783,
+   "t": -2.5236,
+   "hedges_g": -1.7062
+  }
+ ],
+ "covered": [
+  "TAU_S202",
+  "TAU_T205",
+  "TAU_T231",
+  "TAU_S396",
+  "TAU_S404"
+ ],
+ "coverage_gate": true,
+ "mapt_rows_any": [
+  "TAU_S202",
+  "TAU_T205",
+  "TAU_T231",
+  "TAU_S396",
+  "TAU_S404",
+  "TAU_S262",
+  "TAU_S356"
+ ],
+ "reproduction": {
+  "pass": true,
+  "sites": [
+   {
+    "site": "E9PWP6_S443",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.3119,
+    "t": 1.5887,
+    "hedges_g": 1.9163,
+    "gene": "Rims1"
+   },
+   {
+    "site": "E9PWP6_S447",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.1224,
+    "t": -0.351,
+    "hedges_g": -0.2067,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S413",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.5391,
+    "t": 1.7518,
+    "hedges_g": 1.0876,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S346",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.3093,
+    "t": 0.7946,
+    "hedges_g": 0.4523,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S548",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.005,
+    "t": -0.0167,
+    "hedges_g": -0.0118,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S95",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 3,
+    "lfc": null,
+    "t": null,
+    "hedges_g": 1.9697,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S563",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.256,
+    "t": 0.7366,
+    "hedges_g": 0.4343,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S566",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0335,
+    "t": -0.1116,
+    "hedges_g": -0.0702,
+    "gene": "Rims1"
+   },
+   {
+    "site": "E9PWP6_S514",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 2,
+    "lfc": null,
+    "t": null,
+    "hedges_g": 0.0,
+    "gene": "Rims1"
+   },
+   {
+    "site": "E9PWP6_S413",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0279,
+    "t": -0.0969,
+    "hedges_g": -0.0625,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S241",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": 0.3813,
+    "t": 0.5458,
+    "hedges_g": 0.2774,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S252",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Rims1"
+   },
+   {
+    "site": "P20357_S969",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": 0.5627,
+    "t": 0.9568,
+    "hedges_g": 0.4972,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S28",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 1.0099,
+    "t": 1.9454,
+    "hedges_g": 1.0484,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1783",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0454,
+    "t": -0.2362,
+    "hedges_g": -0.3197,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S626",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": -2.5692,
+    "t": -2.2516,
+    "hedges_g": -1.1082,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S655",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1352",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.1728,
+    "t": 0.7545,
+    "hedges_g": 0.6079,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1537",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1539",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.8203,
+    "t": 2.2347,
+    "hedges_g": 1.2938,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S136",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": 1.4391,
+    "t": 4.148,
+    "hedges_g": 2.5626,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S140",
+    "quantified": false,
+    "n_stress": 3,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S938",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": -0.0853,
+    "t": -0.3836,
+    "hedges_g": -0.785,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S496",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 2,
+    "lfc": null,
+    "t": null,
+    "hedges_g": -0.0,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1013",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 2,
+    "lfc": null,
+    "t": null,
+    "hedges_g": -0.0,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S365",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0736,
+    "t": -0.2244,
+    "hedges_g": -0.1353,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1161",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -2.7262,
+    "t": -1.3711,
+    "hedges_g": -0.6968,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S739",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S599",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": 0.1508,
+    "t": 0.6122,
+    "hedges_g": 0.6169,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S603",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -1.9544,
+    "t": -1.4647,
+    "hedges_g": -0.7481,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S608",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 2.9713,
+    "t": 2.3108,
+    "hedges_g": 1.181,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1560",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": -0.159,
+    "t": -0.3678,
+    "hedges_g": -0.2053,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1567",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1680",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": -0.2948,
+    "t": -0.7422,
+    "hedges_g": -0.4276,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S283",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 1.484,
+    "t": 2.8656,
+    "hedges_g": 1.5448,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1485",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.5292,
+    "t": -1.0564,
+    "hedges_g": -0.5659,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S823",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.6486,
+    "t": -1.2316,
+    "hedges_g": -0.6527,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S825",
+    "quantified": false,
+    "n_stress": 2,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": -0.0,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1545",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.1125,
+    "t": 0.6173,
+    "hedges_g": 1.4829,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1635",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.324,
+    "t": 1.2241,
+    "hedges_g": 0.8379,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1787",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.4707,
+    "t": -0.7237,
+    "hedges_g": -0.3809,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1788",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.823,
+    "t": 2.3764,
+    "hedges_g": 1.4028,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1791",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0292,
+    "t": -0.1137,
+    "hedges_g": -0.08,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S447",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.5415,
+    "t": -2.6159,
+    "hedges_g": -2.6015,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S472",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": 0.2477,
+    "t": 1.0076,
+    "hedges_g": 1.022,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S476",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1654",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.3059,
+    "t": 1.3135,
+    "hedges_g": 1.0325,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S1743",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.3746,
+    "t": -0.686,
+    "hedges_g": -0.361,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S790",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 2,
+    "lfc": null,
+    "t": null,
+    "hedges_g": 0.0,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S520",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.0368,
+    "t": -0.1696,
+    "hedges_g": -0.1507,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_S883",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.1152,
+    "t": -0.2972,
+    "hedges_g": -0.173,
+    "gene": "Map2"
+   },
+   {
+    "site": "Q99NE5_S1448",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.4721,
+    "t": -1.1159,
+    "hedges_g": -0.6227,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1450",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.5602,
+    "t": -1.3224,
+    "hedges_g": -0.7378,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1451",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.4016,
+    "t": -0.9009,
+    "hedges_g": -0.4975,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S927",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S716",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.2765,
+    "t": -0.8289,
+    "hedges_g": -0.4963,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1023",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.3017,
+    "t": 0.959,
+    "hedges_g": 0.589,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1027",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.6092,
+    "t": -1.1736,
+    "hedges_g": -0.6325,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1082",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 2,
+    "lfc": -0.2003,
+    "t": -0.6521,
+    "hedges_g": -0.4435,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S866",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.2538,
+    "t": -0.9893,
+    "hedges_g": -0.8873,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S899",
+    "quantified": false,
+    "n_stress": 3,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": -0.5089,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1051",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -0.1675,
+    "t": -0.8011,
+    "hedges_g": -0.7752,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S812",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.407,
+    "t": 1.4473,
+    "hedges_g": 0.947,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S1240",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.069,
+    "t": -0.243,
+    "hedges_g": -0.1808,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S788",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 3,
+    "lfc": null,
+    "t": null,
+    "hedges_g": 1.2401,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_S790",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": -1.1155,
+    "t": -4.0381,
+    "hedges_g": -2.6749,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_T565",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_T243",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -0.5025,
+    "t": -0.9998,
+    "hedges_g": -0.5352,
+    "gene": "Rims1"
+   },
+   {
+    "site": "P20357_T1781",
+    "quantified": false,
+    "n_stress": 0,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1358",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.1619,
+    "t": 0.7156,
+    "hedges_g": 0.5876,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1445",
+    "quantified": true,
+    "n_stress": 2,
+    "n_control": 3,
+    "lfc": -1.3567,
+    "t": -3.5657,
+    "hedges_g": -2.0938,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T606",
+    "quantified": false,
+    "n_stress": 0,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1650",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.3405,
+    "t": 1.6828,
+    "hedges_g": 1.7989,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1609",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 3,
+    "lfc": null,
+    "t": null,
+    "hedges_g": 0.1183,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1617",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.1123,
+    "t": 0.2259,
+    "hedges_g": 0.1225,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1620",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.251,
+    "t": 0.7082,
+    "hedges_g": 0.4147,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1623",
+    "quantified": false,
+    "n_stress": 3,
+    "n_control": 1,
+    "lfc": null,
+    "t": null,
+    "hedges_g": -0.4318,
+    "gene": "Map2"
+   },
+   {
+    "site": "P20357_T1657",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.197,
+    "t": 0.9294,
+    "hedges_g": 0.8693,
+    "gene": "Map2"
+   },
+   {
+    "site": "Q99NE5_T1025",
+    "quantified": true,
+    "n_stress": 3,
+    "n_control": 3,
+    "lfc": 0.251,
+    "t": 1.3112,
+    "hedges_g": 1.8167,
+    "gene": "Rims1"
+   },
+   {
+    "site": "Q99NE5_T1241",
+    "quantified": false,
+    "n_stress": 1,
+    "n_control": 0,
+    "lfc": null,
+    "t": null,
+    "hedges_g": null,
+    "gene": "Rims1"
+   }
+  ]
+ },
+ "tau": {
+  "k": 5,
+  "S": 0.2376,
+  "perm_p_up": 0.3,
+  "perm_p_two": 0.6,
+  "n_labelings": 20,
+  "rot_p_up": 0.2819,
+  "rot_p_two": 0.5455,
+  "rot_sites": 5,
+  "single_protein_sets": 1000,
+  "single_protein_pct": 66.8,
+  "independent_pct": 61.3
+ },
+ "set_score": {
+  "diff": -0.05986150782370978,
+  "lo": -0.7181393655879191,
+  "hi": 0.5984163499404995,
+  "df": 3.418559618269058,
+  "scores": [
+   0.23830999997116525,
+   0.028916363744651275,
+   -0.1774341019802521,
+   0.3294153992183687,
+   -0.29340291184433775,
+   -0.12580474910959588
+  ]
+ },
+ "mean_lfc": -0.059860000000000003,
+ "leave_one_out_S": [
+  -0.028958805651538022,
+  0.2529017848314788,
+  0.3495921965555158,
+  0.03665840161420297,
+  0.5779093159800408
+ ],
+ "ribosomal_genes": [
+  "Rpl12",
+  "Rpl14",
+  "Rpl23a",
+  "Rpl34",
+  "Rpl4",
+  "Rps10",
+  "Rps27",
+  "Rps28",
+  "Rps3"
+ ],
+ "ribosomal": {
+  "k": 9,
+  "S": -0.5828,
+  "perm_p_up": 1.0,
+  "perm_p_two": 0.1,
+  "n_labelings": 20,
+  "rot_p_up": 0.8138,
+  "rot_p_two": 0.3788,
+  "rot_sites": 6,
+  "single_protein_sets": 1000,
+  "single_protein_pct": 11.1,
+  "independent_pct": 8.7
+ },
+ "calibration": {
+  "n_sets": 200,
+  "k": 5,
+  "frac_p_two_lt_005": 0.07,
+  "pass": true
+ },
+ "decision": "NULL, weak (a 1.5-fold rise not excluded)"
+}
