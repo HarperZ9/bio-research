@@ -126,6 +126,33 @@ Zain Dana Harper
 
 ---
 
+## Request 4: NKI-Rockland phenotypic data eligibility
+
+Sent 2026-10-10 from Gmail (message id 1a1270e70737f9ea), text as below. Operator approval in chat: "Send them, and you may sign up".
+
+**Recipient:** `RocklandSample.Enduser@nki.rfmh.org`
+**Source URL for the address:** https://rocklandsample.org/phenotypic-data (the only address on the page; checked 2026-10-10). The page requires the DUA to be "signed and notarized by the appropriate institutional representative"; IRB approval is not required for the transfer.
+
+**Subject:** Question: can an independent researcher sign the NKI-RS data usage agreement?
+
+**Body:**
+
+Dear Rockland Sample team,
+
+I am an independent researcher working as a sole proprietor in Washington State, with years of field experience on a Pacific Northwest tree crew and a research focus on stress and the brain. I have no university affiliation and no funding.
+
+I would like to use the Rockland Sample I phenotypic data (for example the TSC-40 and STAI) together with the open longitudinal T1w images, to test whether stress and trauma measures predict hippocampal volume change over two or more years. The analysis plan is pre-registered before any data is opened.
+
+Your phenotypic data page asks for the agreement to be signed and notarized by the appropriate institutional representative. As a sole proprietor, I am the representative of my own business. Would it be acceptable for me to sign the agreement in that capacity, with notarization by a licensed notary public? If not, is there another route for an individual?
+
+I will follow every term of the agreement, cite the Rockland Sample as directed, and share the results and code with you.
+
+Thank you,
+
+Zain Dana Harper
+
+---
+
 ## Decisions for the operator
 
 1. **Reply address.** Each draft ends with a placeholder. Choose the address to send from.
