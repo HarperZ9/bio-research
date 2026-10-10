@@ -6,6 +6,7 @@ Drafted 2026-10-09.
 - 2026-10-09: Request 1 sent from Gmail to brent.oblinger@usda.gov (message id 1a123e3672abc39a). Operator approval in chat: "Send."
 - 2026-10-09: Request 2 sent from Gmail to gabriela.ritokova@odf.oregon.gov, cc sarah.navarro@usda.gov (message id 1a123e372a97a023). Same approval.
 - Sent text differs from the drafts below only in: greeting by full name (no titles), and the reply-address placeholder removed.
+- 2026-10-10 03:37 UTC: automatic reply from Gabriela Ritokova: on medical leave, checking email intermittently. Sarah Navarro (USFS) was cc'd and has the request. Proposed follow-up (not sent, needs operator approval): a short note addressed to Navarro directly if no reply within one to two weeks.
 - Request 3 (LEMMA web form) and the optional LEMMA email: not sent; the form is the operator's to fill.
 Sources for the data needs: `project-docs/briefs/05-root-disease-remote-sensing.md` (sections 4 to 6) and `project-docs/briefs/06-phytophthora-ramorum-forecast.md` (sections 5 to 7).
 

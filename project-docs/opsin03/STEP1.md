@@ -115,3 +115,7 @@ The test fails (strict xfail). Williams saturates at lower light. Other differen
 - Intracellular Cl- dynamics: a single compartment with volume, a KCC2 extrusion time constant from a cited source, and E_GABA from Nernst (or GHK with HCO3-).
 - A single-compartment neuron with a GABA-A synapse and an evoked-spike protocol, plus a proton-pump control with no Cl- coupling. The test: increased post-light spiking with the Cl- pump, and none with the proton pump. The model must not be fit to that result.
 - Lock all parameters and commit a hash before reading Raimondo's effect sizes, as section 5 of the brief requires.
+
+## Lead decision, 2026-10-10
+
+The 10% agreement exit criterion fired. Decision: do not exit; carry both ChR2 parameter sets (PyRhO file at dade008 and a Python port of Williams 2013) into the circuit step. Any circuit-level prediction that changes direction or rank between the two sets is reported as model-dependent, not as a prediction. Reason: the disagreement is itself the step-1 finding, and choosing one set would hide it.
