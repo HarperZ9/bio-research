@@ -70,4 +70,27 @@ task-evoked regulation. Rest connectivity is not emotion regulation.
 
 ## Deviations
 Any change after this file is committed is logged below with date and reason.
-None yet.
+
+2026-10-09, decided before any participant was preprocessed and before any
+phenotype or connectivity value was opened (raised in
+`01-DEVIATIONS-PROPOSED.md`):
+
+1. aCompCor: use the available components up to 5 per mask (WM, CSF) and
+   record the count per participant. Sensitivity analysis: exclude
+   participants with fewer than 5 in either mask. Reason: the original text
+   did not say what to do when fMRIPrep keeps fewer; exclusion would drop
+   data on a technicality.
+2. Holm: an "association" call for either test requires both the 95% CI
+   excluding 0 and a Holm-adjusted p < 0.05 across the two tests. Reason:
+   the original text named Holm without saying whether it gates the call;
+   this is the stricter reading.
+3. Susceptibility distortion correction (not specified originally): link each
+   session's field maps to that session's rest runs with `IntendedFor` in
+   local copies of the sidecars, so fMRIPrep uses the acquired field maps.
+   If a session's field maps do not match its runs (phase-encoding or
+   geometry), that participant falls back to fMRIPrep's field-map-less SyN
+   correction, recorded in the QC receipt. Reason: vmPFC sits in the region
+   most affected by susceptibility distortion and dropout.
+
+The pre-registration body above is unchanged; its frozen hash in HASHES.md
+refers to the version before this section was filled in.
