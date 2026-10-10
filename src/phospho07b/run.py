@@ -1,4 +1,4 @@
-"""Command line: python -m phospho07b.run posctl|primary --data DIR --fasta GZ --out JSON."""
+"""Command line: python -m phospho07b.run posctl|primary|hippo --data DIR --fasta GZ --out JSON."""
 from __future__ import annotations
 
 import argparse
@@ -7,7 +7,7 @@ import re
 
 import numpy as np
 
-from . import posctl
+from . import hippo, posctl
 from .loaders import load_maxquant_sites
 from .primary import (PRIMARY, SECONDARY, build_matrix, calibration_panel, decide,
                       set_tests, site_table)
@@ -74,15 +74,18 @@ def _set_level(res, y, arr, groups, prior, genes, prots, covered):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("mode", choices=["posctl", "primary"])
+    ap.add_argument("mode", choices=["posctl", "primary", "hippo"])
     ap.add_argument("--data", required=True)
     ap.add_argument("--fasta")
     ap.add_argument("--control", nargs="*")
     ap.add_argument("--stress", nargs="*")
+    ap.add_argument("--prior-07b", help="07b primary JSON (hippo mode)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
     if a.mode == "posctl":
         res = posctl.run(a.data, a.fasta)
+    elif a.mode == "hippo":
+        res = hippo.run(a.data, a.fasta, a.prior_07b)
     else:
         res = run_primary(a.data, a.control, a.stress)
     with open(a.out, "w", encoding="utf-8", newline="\n") as fh:

@@ -129,3 +129,39 @@ def log2_median_centre(values: pd.DataFrame) -> pd.DataFrame:
 def find_sites(annot: pd.DataFrame, windows: dict[str, str]) -> dict[str, list[str]]:
     """Map target name -> table site keys whose 15-mer window matches."""
     return {name: annot.index[annot["window15"] == w].tolist() for name, w in windows.items()}
+
+
+PTM_COLS = ["R.FileName", "PTM.CollapseKey", "PTM.FlankingRegion", "PTM.ModificationTitle",
+            "PTM.ProteinId", "PTM.Quantity", "PTM.SiteAA", "PTM.SiteLocation",
+            "PTM.SiteProbability"]
+
+
+def load_spectronaut_ptm_sites(path: str, runs: list[str], genes: dict[str, str],
+                               min_prob: float = 0.75):
+    """Spectronaut PTM site report (Normal, long) -> site matrix.
+
+    A (site, run) value is kept only when that run's site probability is at
+    least min_prob. Multiplicity rows (_M1, _M2, ...) of one site are summed.
+    Non-numeric quantities ("Filtered", NaN) are missing. genes maps a UniProt
+    accession (isoform suffix dropped) to a gene name.
+    """
+    df = pd.read_csv(path, sep="\t", usecols=PTM_COLS, low_memory=False)
+    df = df[df["PTM.ModificationTitle"].astype(str).str.startswith("Phospho")]
+    df = df[df["R.FileName"].isin(runs)]
+    q = pd.to_numeric(df["PTM.Quantity"], errors="coerce")
+    prob = pd.to_numeric(df["PTM.SiteProbability"], errors="coerce")
+    df = df.assign(q=q.where((prob >= min_prob) & (q > 0)))
+    df["site"] = df["PTM.CollapseKey"].astype(str).str.replace(r"_M\d+$", "", regex=True)
+    values = df.pivot_table(index="site", columns="R.FileName", values="q", aggfunc="sum",
+                            dropna=False).reindex(columns=runs)
+    values = values.replace(0, np.nan).dropna(how="all")
+    first = df.drop_duplicates("site").set_index("site").loc[values.index]
+    prot = first["PTM.ProteinId"].astype(str)
+    base = prot.str.split(";").str[0].str.split("-").str[0]
+    annot = pd.DataFrame({"protein": prot.values,
+                          "gene": [genes.get(b, "") for b in base],
+                          "aa": first["PTM.SiteAA"].values,
+                          "pos": first["PTM.SiteLocation"].values,
+                          "window15": first["PTM.FlankingRegion"].astype(str).str[:15].values},
+                         index=values.index)
+    return values, annot

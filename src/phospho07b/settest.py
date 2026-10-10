@@ -13,36 +13,44 @@ def set_stat(y: np.ndarray, groups: np.ndarray, idx: np.ndarray) -> float:
     return float(np.nanmean(t)) if np.any(np.isfinite(t)) else np.nan
 
 
-def _effects(y: np.ndarray, groups: np.ndarray) -> tuple[np.ndarray, float]:
-    """Rotate-able effects (rows x n-1) from a QR of [1, group]; and the sign."""
-    n = y.shape[1]
-    x = np.column_stack([np.ones(n), groups.astype(float)])
+def _effects(y: np.ndarray, x: np.ndarray) -> tuple[np.ndarray, float]:
+    """Rotate-able effects (rows x n-p+1) from a QR of x; last column of x tested."""
+    p = x.shape[1]
     q, r = np.linalg.qr(x, mode="complete")
     eff = y @ q  # rows x n
-    sign = np.sign(r[1, 1])
-    return eff[:, 1:], float(sign)
+    sign = np.sign(r[p - 1, p - 1])
+    return eff[:, p - 1:], float(sign)
 
 
 def rotation_test(y: np.ndarray, groups: np.ndarray, idx: np.ndarray, prior,
                   n_rot: int = 9999, seed: int = 7) -> dict:
-    """ROAST-style one-sided (UP) and two-sided p for the mean moderated t.
+    """ROAST-style p for the two-group design [1, group] (07b)."""
+    n = y.shape[1]
+    x = np.column_stack([np.ones(n), groups.astype(float)])
+    return rotation_test_design(y, x, idx, prior, n_rot, seed)
+
+
+def rotation_test_design(y: np.ndarray, x: np.ndarray, idx: np.ndarray, prior,
+                         n_rot: int = 9999, seed: int = 7) -> dict:
+    """ROAST-style one-sided (UP, DOWN) and two-sided p for the mean moderated t
+    of the last coefficient of design x.
 
     Uses complete-case rows of the set only. prior = (d0, s0sq) fixed.
     """
     sub = y[idx]
     sub = sub[~np.isnan(sub).any(1)]
     if sub.shape[0] == 0:
-        return {"p_up": np.nan, "p_two": np.nan, "n_sites": 0, "stat": np.nan}
-    n = y.shape[1]
-    v, sign = _effects(sub, groups)
+        return {"p_up": np.nan, "p_down": np.nan, "p_two": np.nan, "n_sites": 0,
+                "stat": np.nan}
+    v, sign = _effects(sub, x)
     norm2 = np.sum(v ** 2, 1)
-    d = n - 2
+    d = y.shape[1] - x.shape[1]
     d0, s0sq = prior
 
     def stat(e1):
         s2 = (norm2 - e1 ** 2) / d
         post = s0sq if np.isinf(d0) else (d0 * s0sq + d * s2) / (d0 + d)
-        # t = beta / se; beta = e1 / r11 and se = sqrt(post) / |r11|
+        # t = beta / se; beta = e1 / r_pp and se = sqrt(post) / |r_pp|
         return np.mean(sign * e1 / np.sqrt(post))
 
     obs = stat(v[:, 0])
@@ -51,6 +59,7 @@ def rotation_test(y: np.ndarray, groups: np.ndarray, idx: np.ndarray, prior,
     r /= np.linalg.norm(r, axis=1, keepdims=True)
     rot = np.array([stat(v @ ri) for ri in r])
     return {"p_up": (np.sum(rot >= obs) + 1) / (n_rot + 1),
+            "p_down": (np.sum(rot <= obs) + 1) / (n_rot + 1),
             "p_two": (np.sum(np.abs(rot) >= abs(obs)) + 1) / (n_rot + 1),
             "n_sites": int(sub.shape[0]), "stat": float(obs)}
 

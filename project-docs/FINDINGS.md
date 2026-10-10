@@ -291,3 +291,152 @@ Does not prove.
 - Nothing here measures microtubule stability. The positive control shows the
   pipeline detects a fast, large site change in 6 vs 7 animals, not that it
   would detect a small chronic one in 3 vs 3.
+
+## F-07c-1 (2026-10-09). Stress-linked tau phosphosites, mouse hippocampus after chronic restraint (PXD057176): null, excludes a 1.5-fold rise
+
+Question. In mouse hippocampus after chronic restraint stress, are the tau
+sites that antibody studies reported as stress-increased (human 2N4R S202,
+T205, T231, S396, S404, S409) higher in the deposited DIA phospho table?
+Motivation: F-07b-1 was a weak null in mPFC, and Rissman 2012 saw the rise in
+hippocampus only. Decision informed: whether the deposited-table arm for tau
+continues or closes (pre-registration 07c section 1).
+
+Receipts.
+- Pre-registration: project-docs/prereg/07c-phospho-tau-hippocampus.md,
+  commit bda508e, SHA-256 ae2a23f6...8befe7 (HASHES.md), committed before the
+  table was downloaded.
+- Data receipts: project-docs/prereg/07c-DATA.md (URLs, bytes, SHA-256,
+  licence UNVERIFIED for iProX). Data under H:\bio-data\proteomics.
+- Code: src/phospho07b/ extended (blocked.py: per-site sex + stress linear
+  model with moderated t, stratified permutation, blocked set score;
+  hippo.py and hippo_checks.py: 07c runner, run-name decoding, Y-linked label
+  check, reproduction, decision, 07b combination; loaders.py: Spectronaut PTM
+  site report; settest.py: rotation test generalized to a design matrix).
+  Run from src/: `python -m phospho07b.run hippo --data H:/bio-data/proteomics/PXD057176 --fasta H:/bio-data/proteomics/ref/mouse_sprot_iso.fasta.gz --prior-07b ../project-docs/prereg/07b-results/primary-PXD016302.json --out ...`.
+  Outputs: project-docs/prereg/07c-results/*.json.
+- Tests: tests/test_phospho07c_{blocked,checks}.py (14 new) plus the 22 of
+  07b, 36 passed. New checks: the blocked model reduces to the 07b two-group t;
+  a large sex effect does not leak into the stress t; planted stress effect
+  recovered (stratified permutation p <= 0.01, interval covers the plant);
+  rotation test with the sex design calibrated on correlated null sets (at
+  most 12 of 100 calls); label-check, reproduction and decision branches;
+  loader drops low-probability and "Filtered" values and sums multiplicities.
+
+Datasets (decoded from metadata only, before any table).
+- PXD057176 kept. Supplementary captions on the Springer page give groups
+  Ctrl (non-stressed), AD-Sus, Insus, 3 samples per group per sex. File-name
+  letter 2 (C, D, I) = Ctrl, AD-Sus, Insus (high confidence). Letter 1
+  (C, X) = female, male by pinyin inference (moderate). Table S1 says n = 6
+  mice per group per sex for 3 samples, so samples may be two-mouse pools.
+- PXD050750 dropped: raw files A1..A9 and 1..6 carry no group label, the
+  record says "no PTMs", the paper is closed and its page returned a bot
+  challenge. Design and n not decodable. Rat tau windows were mapped anyway
+  (all 8 equal the mouse windows) and are recorded in the pre-registration.
+
+Gate.
+- Pipeline positive control (PXD024829 Syn1 pS553) re-run with the extended
+  code: PASS, output byte-identical to the 07b result (log2FC +1.35, exact
+  p_UP = 1/1716).
+- In-dataset positive control: none available. The gate here is weaker than
+  in 07b and rests on the checks below.
+- Run names: the 18 report runs match the 18 decoded file names; the report's
+  own R.Condition labels (C_C ... X_I) agree.
+- Sex label check: no Y-linked (Ddx3y, Eif2s3y, Kdm5d, Uty) site in the
+  table. Sex UNCONFIRMED; per-sex results are labeled by prefix.
+- Reproduction (Stmn1 S38, |log2FC| >= 0.263 in a female phenotype vs female
+  Ctrl): PASS on the 1.2-fold rule. Prefix C Insus vs Ctrl -0.66 (t -1.62),
+  AD-Sus -0.20; prefix X AD-Sus -0.60, Insus +0.21. The passing contrast is
+  not itself significant, so this check is weak.
+- Calibration panel (200 single-protein 4-site sets, sex-blocked rotation):
+  17% at two-sided p < 0.05, above the 15% limit. FAIL. The rotation test is
+  labeled miscalibrated and cannot carry a positive call.
+- Ribosomal set (4 eligible sites: Rpl12, Rpl18a, Rps2, Rps8): permutation
+  two-sided 0.50, rotation two-sided 1.00 (2 complete sites), independent
+  random-set percentile 26.4, single-protein percentile 2.9.
+
+Primary (sex-blocked, CRS = AD-Sus + Insus, 12 vs 6). 4,819 sites after
+filters; 1,673 eligible (at least 2 values in each sex x stress cell).
+Coverage gate passed: 4 of 6 (T205 and S409 not in the table).
+
+| Site (human / mouse canonical) | log2FC CRS - Ctrl (sex-adjusted) | Moderated t | Hedges g |
+|---|---|---|---|
+| S202 / S494 | +0.18 | 1.46 | 0.34 |
+| T205 / T497 | not in table | | |
+| T231 / T523 | -0.04 | -0.20 | -0.09 |
+| S396 / S688 | +0.16 | 0.82 | 0.38 |
+| S404 / S696 | +0.01 | 0.04 | -0.07 |
+| S409 / S701 | not in table | | |
+| Secondary S262, S356 | not in table | | |
+
+Set level: S = +0.53; mean log2FC +0.08; set-score stress coefficient +0.04,
+95% CI -0.25 to +0.33 (df 15). Stratified permutation p_UP = 0.21 (2,001
+within-sex labelings). Rotation p_UP = 0.15 (3 complete sites; test flagged).
+Single-protein random-set percentile 79.4; independent 76.9.
+Leave-one-site-out S: +0.22 to +0.77.
+
+Decision under the pre-registered rule: NULL, excludes a 1.5-fold rise (upper
+bound +0.33 < 0.585), with controls flagged (rotation test miscalibrated).
+The flag cannot change a null. Confidence: high that the pre-registered
+pooled test is null on this table; moderate that it is informative, because
+the in-dataset gate is weak.
+
+Descriptive, not decision inputs (per-sex and phenotype looks are several
+comparisons; none was pre-registered as a test).
+- Prefix C (inferred female, 6 vs 3): S -0.74, permutation p_UP 0.94, set
+  difference -0.19 (Welch 95% CI -0.44 to +0.05); T231 -0.57 (t -3.10).
+- Prefix X (inferred male, 6 vs 3): S +1.61, exact p_UP 4/84 = 0.048,
+  rotation p_UP 0.046 (flagged test), single-protein percentile 99.6; set
+  difference +0.34 (Welch 95% CI -0.22 to +0.91); all 4 sites positive.
+- The two prefixes point in opposite directions. A sex x stress interaction
+  was not pre-registered and was not tested. The prefix X pattern is a lead
+  only: one of two sex looks, sex unconfirmed, rotation test flagged, and its
+  interval includes zero.
+- AD-Sus vs Ctrl: S +0.38, rotation p_UP 0.33. Insus vs Ctrl: S +0.59,
+  rotation p_UP 0.055.
+- Mapt T523 (the paper's Insus target, human T231): pooled -0.04; Insus vs
+  Ctrl -0.03. Not reproduced at the pooled level; prefixes C and X give -0.57
+  and +0.50.
+
+How 07b and 07c combine (rule fixed in the 07c pre-registration).
+- 07b NULL (weak) in mPFC after CUMS, 07c NULL (excludes 1.5-fold) in
+  hippocampus after CRS: null in two regions, two labs, two stress models,
+  two platforms. Under the rule, the deposited-table arm for tau closes;
+  brief 07b section 6 routes 2 to 4 (raw-file reanalysis, targeted antibody
+  work, human cohorts) remain.
+- Fixed-effect combination of the set-score effects (descriptive, different
+  regions and models): +0.01, 95% CI -0.21 to +0.24 (SE 07b 0.22, 07c 0.14).
+- The Rissman hippocampus-only pattern is not reproduced in pooled sexes.
+  The prefix X (inferred male) look is the only place an UP pattern appears.
+  The sex of Rissman's mice was not recorded in the 07b reading (UNVERIFIED).
+
+Deviations (none changed a decision rule):
+1. Format (a) used the long "PTMSiteReport (Normal)" file. The pivot version
+   has no site probability, so it could not apply the 0.75 rule.
+2. Spectronaut had already filtered at site probability 0.75, so the
+   pre-registered filter removed nothing more. No imputation flag was set.
+3. Gene names came from the mouse Swiss-Prot FASTA by accession (the report
+   has no gene column); 11 of 4,819 sites have no gene name.
+4. Per-sex output is keyed by prefix because sex was unconfirmed; the code
+   still treats prefix X as "sex = 1" for blocking, which does not change the
+   blocked test.
+5. The rotation function gained a DOWN p-value and a design-matrix form; the
+   07b positive control and the 07b primary both re-ran byte-identically
+   (SHA-256 b7a2a45d...6c3d and 5355d27b...28ad).
+
+Next step (change trigger met): no further deposited-table tau test without
+a new dataset with decodable labels. A sex-specific hippocampal question
+(prefix X lead) needs a confirmed-sex dataset or raw-file reanalysis with a
+pre-registered interaction test.
+
+Does not prove.
+- MS single sites are not the antibody joint epitopes (AT8, PHF-1); T205 and
+  S409 were not measured here.
+- Samples may be two-mouse pools; effective n may be smaller than 18.
+- Stress mice were selected by behaviour into two phenotypes; the pooled
+  contrast averages over a selected sample, not a random one.
+- The table could not show it detects a true chronic effect: there is no
+  in-dataset positive control, the reproduction pass rests on a fold change
+  without significance, and the calibration panel failed its limit.
+- No total-tau adjustment; no paired global proteome.
+- Sex labels are inferred, not confirmed.
+- Nothing here measures microtubule stability.

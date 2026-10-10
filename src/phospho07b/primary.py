@@ -7,7 +7,7 @@ import pandas as pd
 from .loaders import find_sites, log2_median_centre
 from .posctl import combine_target
 from .settest import (matched_independent_sets, matched_single_protein_sets, percentile,
-                      rotation_test, set_score_ci, set_stat)
+                      rotation_test, rotation_test_design, set_score_ci, set_stat)
 from .stats import hedges_g, moderated_t, permutation_p_up
 
 PRIMARY = {"S202": "SGYSSPGSPGTPGSR", "T205": "SSPGSPGTPGSRSRT", "T231": "KKVAVVRTPPKSPSA",
@@ -16,17 +16,26 @@ SECONDARY = {"S262": "NVRSKIGSTENLKHQ", "S356": "RVQSKIGSLDNITHV"}
 LOG2_15 = float(np.log2(1.5))
 
 
-def build_matrix(values: pd.DataFrame, annot: pd.DataFrame):
-    """Collapse each tau target to one row; return y, row names, genes, targets."""
+def build_matrix(values: pd.DataFrame, annot: pd.DataFrame, others: dict | None = None):
+    """Collapse each tau target to one row; return y, row names, genes, targets.
+
+    others: optional {row name: (gene, 15-mer window)} for non-tau sites that
+    are collapsed the same way (07c reproduction sites).
+    """
     hits = find_sites(annot, {**PRIMARY, **SECONDARY})
-    used = sorted({k for v in hits.values() for k in v})
+    ohits = find_sites(annot, {k: w for k, (_, w) in (others or {}).items()})
+    used = sorted({k for v in [*hits.values(), *ohits.values()] for k in v})
     rest = values.drop(index=used)
     extra = {f"TAU_{n}": combine_target(values, k) for n, k in hits.items() if k}
-    tau = pd.DataFrame(extra, index=values.columns).T
+    oextra = {n: combine_target(values, k) for n, k in ohits.items() if k}
+    tau = pd.DataFrame({**extra, **oextra}, index=values.columns).T
     allv = pd.concat([rest, tau])
-    genes = list(annot.loc[rest.index, "gene"].str.split(";").str[0]) + ["Mapt"] * len(extra)
-    prots = list(annot.loc[rest.index, "protein"]) + ["TAU"] * len(extra)
+    genes = (list(annot.loc[rest.index, "gene"].str.split(";").str[0]) + ["Mapt"] * len(extra)
+             + [others[n][0] for n in oextra])
+    prots = list(annot.loc[rest.index, "protein"]) + ["TAU"] * len(extra) + list(oextra)
     y = log2_median_centre(allv)
+    if others is not None:
+        hits = {**hits, **ohits}
     return y, np.array(genes), np.array(prots), hits
 
 
@@ -70,8 +79,14 @@ def set_tests(arr, groups, idx, prior, intensity, eligible, prots, exclude) -> d
             "independent_pct": _f(percentile(stat, ind_ref))}
 
 
-def calibration_panel(arr, groups, prior, prots, eligible, exclude, k, n_sets=200, seed=7):
-    """Rotation test on random single-protein sets: fraction two-sided p < 0.05."""
+def calibration_panel(arr, groups, prior, prots, eligible, exclude, k, n_sets=200, seed=7,
+                      x=None):
+    """Rotation test on random single-protein sets: fraction two-sided p < 0.05.
+
+    x: optional design matrix (last column tested); default is [1, groups].
+    """
+    if x is None:
+        x = np.column_stack([np.ones(arr.shape[1]), groups.astype(float)])
     rng = np.random.default_rng(seed)
     by = {}
     for i in np.flatnonzero(eligible & ~np.isnan(arr).any(1)):
@@ -82,7 +97,7 @@ def calibration_panel(arr, groups, prior, prots, eligible, exclude, k, n_sets=20
     for j in range(n_sets):
         rows = pool[rng.integers(len(pool))]
         pick = rng.choice(rows, k, replace=False)
-        ps.append(rotation_test(arr, groups, pick, prior, n_rot=999, seed=j)["p_two"])
+        ps.append(rotation_test_design(arr, x, pick, prior, n_rot=999, seed=j)["p_two"])
     ps = np.array(ps)
     return {"n_sets": n_sets, "k": k, "frac_p_two_lt_005": float(np.mean(ps < 0.05)),
             "pass": bool(np.mean(ps < 0.05) <= 0.15)}
