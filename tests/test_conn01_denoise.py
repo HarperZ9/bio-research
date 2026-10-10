@@ -49,6 +49,20 @@ def test_compcor_picks_top_five_per_mask_by_singular_value():
     assert all(meta[c]["Mask"] == "WM" for c in wm)
 
 
+def test_compcor_reads_fmriprep_25_names_and_skips_combined_mask():
+    # fMRIPrep >= 21: c_comp_cor = CSF, w_comp_cor = WM, a_comp_cor = combined.
+    meta = {f"c_comp_cor_{j:02d}": {"Mask": "CSF", "SingularValue": 50.0 - j}
+            for j in range(6)}
+    meta.update({f"w_comp_cor_{j:02d}": {"Mask": "WM", "SingularValue": 40.0 - j}
+                 for j in range(3)})
+    meta.update({f"a_comp_cor_{j:02d}": {"Mask": "combined", "SingularValue": 99.0}
+                 for j in range(4)})
+    assert dn.compcor_columns(meta, "CSF") == [f"c_comp_cor_{j:02d}" for j in range(5)]
+    assert dn.compcor_columns(meta, "WM") == ["w_comp_cor_00", "w_comp_cor_01",
+                                              "w_comp_cor_02"]
+    assert dn.compcor_counts(meta) == {"WM": 3, "CSF": 5}
+
+
 def test_compcor_shortfall_uses_available_components_and_counts_them():
     rng = np.random.default_rng(3)
     conf, meta = syn.confounds(120, rng, n_wm=3)

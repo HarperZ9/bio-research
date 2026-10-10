@@ -32,12 +32,15 @@ LICENSE=${FS_LICENSE:-$DATA/freesurfer/license.txt}
 VENV=${VENV:-$DATA/venvs/conn01}
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 BIDS="$ROOT/bids-$SUB"; DERIV="$ROOT/derivatives/fmriprep"; WORK="$ROOT/work/sub-$SUB"
-OUT="$ROOT/conn01"; LOGS="$ROOT/logs"
+OUT=${CONN_OUT:-$ROOT/conn01}; LOGS="$ROOT/logs"
 mkdir -p "$DERIV" "$WORK" "$OUT" "$LOGS" "$DATA/templateflow"
 
 log() { echo "[$(date -Is)] sub-$SUB $*"; }
 [ -f "$SIF" ] || { echo "missing fMRIPrep image: $SIF" >&2; exit 2; }
 [ -f "$LICENSE" ] || { echo "missing FreeSurfer license: $LICENSE" >&2; exit 2; }
+# shellcheck source=pipeline_guard.sh
+. "$REPO/scripts/pipeline_guard.sh"
+pipeline_guard "$OUT" fmriprep || exit 3
 if [ -f "$OUT/sub-$SUB/DONE" ]; then log "already done"; exit 0; fi
 
 log "fetch"

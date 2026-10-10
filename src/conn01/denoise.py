@@ -73,16 +73,23 @@ def run_qc(confounds: pd.DataFrame) -> RunQC:
     return RunQC(n, n_cens, mean_fd, frac, not reasons, ";".join(reasons))
 
 
+COMPCOR_PREFIXES = ("a_comp_cor_", "c_comp_cor_", "w_comp_cor_")
+
+
 def compcor_columns(meta: dict, mask: str, n: int = N_COMPCOR_PER_MASK) -> list[str]:
-    """Top retained a_comp_cor columns for one mask ("WM" or "CSF"), up to n.
+    """Top retained aCompCor columns for one mask ("WM" or "CSF"), up to n.
 
     Components are ranked by singular value within the mask, using the
-    fMRIPrep confounds JSON. Fewer than n are returned when fewer were
-    retained (prereg 01 deviation 1); callers record the count.
+    confounds JSON. The mask is read from each entry's "Mask" field, so both
+    naming schemes work: fMRIPrep >= 21 names WM and CSF components
+    w_comp_cor_XX and c_comp_cor_XX (a_comp_cor_XX is the combined mask);
+    older releases named all of them a_comp_cor_XX. Fewer than n are
+    returned when fewer were retained (prereg 01 deviation 1); callers
+    record the count.
     """
     rows = [
         (k, v.get("SingularValue", 0.0)) for k, v in meta.items()
-        if k.startswith("a_comp_cor_") and v.get("Mask") == mask
+        if k.startswith(COMPCOR_PREFIXES) and v.get("Mask") == mask
         and v.get("Retained", True)
     ]
     rows.sort(key=lambda kv: -kv[1])
