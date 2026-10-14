@@ -46,10 +46,12 @@ was taken because of motion in the first). Otherwise run-1.
 
 Exclusions, applied in this order and logged with counts:
 1. A T1w that fails to load or whose segmentation fails.
-2. A scan whose SynthSeg QC score for "hippocampus+amygdala" is below 0.65.
-   The 0.65 value is taken from Billot et al. 2023 (PNAS) as I recall it; it
-   is UNVERIFIED and must be checked against the paper, or replaced by a
-   stated alternative, before freezing.
+2. Per-structure QC, as in Billot et al. 2023: a scan is dropped from an
+   outcome when the SynthSeg QC score of the region that outcome uses is
+   below 0.65. Hippocampal outcomes use the "hippocampus+amygdala" column,
+   thalamus uses "thalamus", putamen uses "putamen+pallidum". A participant
+   is dropped from an outcome if either scan of the pair fails. TIV has no QC
+   column and is not filtered. Source and limits: section 10, item 2.
 3. A participant whose two scans are byte-identical (same SHA-256).
 4. No exclusion on any volume, change or stress value.
 
@@ -128,7 +130,8 @@ values in place of SynthSeg; (c) adding CES-D at the baseline wave;
 participants with MMSE below 26 at either wave of the pair; (f) wave 3
 perceived stress in place of wave 2 (retrospective; it measures the month
 before wave 3 and cannot order cause); (g) negative-control outcomes thalamus
-and putamen in place of H.
+and putamen in place of H; (h) QC cut at 0.75 instead of 0.65 (section 10,
+item 2).
 
 ### 6.5 Reverse direction (exploratory)
 
@@ -193,7 +196,40 @@ inferred):
 ## 10. Open items before freezing (author)
 
 1. Confirm or change the margin of 0.20 SD.
-2. Confirm the QC threshold (section 3, item 2) after the paper is read.
+2. QC threshold, checked 2026-10-14. Value 0.65 verified; author confirms
+   its use given the limits below.
+   - Source opened: Billot et al., "Robust machine learning segmentation for
+     large-scale analysis of heterogeneous clinical brain MRI datasets",
+     arXiv 2209.02032v2 (compiled 2023-01-04), https://arxiv.org/abs/2209.02032 ;
+     published as PNAS 2023, DOI 10.1073/pnas.2216399120 (the PNAS page itself
+     was not opened; the arXiv v2 text was). PDF SHA-256
+     55496dd05adf44105be7cd4e8571b9f992ba9fb3cce3eed5243c2f9659bd11b1.
+   - Methods, automated QC module: "The segmentation of a region is then
+     classified as failed if it obtains a predicted Dice score lower than
+     0.65 (a value chosen based on the validation set)." The scores are
+     regressed Dice values, clipped to 0 to 1 in the released code
+     (SynthSeg/predict_synthseg.py, np.clip(..., 0, 1)).
+   - Two uses in the paper: whole-scan rejection if any region scores below
+     0.65 (594 clinical scans, against visual QC), and a per-structure rule
+     in the aging analysis, keeping "only ... regions with a QC score above
+     0.65". This draft uses the per-structure rule.
+   - Threshold sensitivity, Fig. S9b: accuracy "only varies by 0.01 for
+     thresholds between 0.55 and 0.75". Hence sensitivity (h) at 0.75.
+   - Applies to the robust model: the repo names the robust model
+     "SynthSeg-robust", tutorial 7-synthseg+.py "show[s] how the robust
+     version of SynthSeg was trained", and the README asks users of the
+     robust version and automated QC to cite this paper. So the paper's
+     SynthSeg+ is the --robust path used here (observed in the repo at commit
+     2a2aa3b).
+   - Limits: (1) the paper's QC regressor scores 10 regions; the released
+     2.0 QC model writes 8 grouped columns (for example
+     "hippocampus+amygdala"). Whether 0.65 was re-validated for the grouped
+     2.0 model is UNVERIFIED; the repo README and code state no threshold.
+     (2) The 0.65 cut was validated on heterogeneous clinical scans; on 1 mm
+     research MPRAGE it is expected to catch only gross failures (inferred).
+     (3) The FreeSurfer SynthSeg wiki page timed out twice on 2026-10-14 and
+     was not read. (4) The repo README's "arxiv" link points to 2203.01969,
+     a different (MICCAI 2022) paper; 2209.02032 is the matching preprint.
 3. Confirm wave 2 stress as primary (prospective) over wave 3 (larger n by 3,
    but retrospective).
 4. Approve the freeze; the commit hash and file SHA-256 then go to HASHES.md.
