@@ -4,6 +4,8 @@ Date: 2026-10-10. Register: research brief, flavored. Follows F-02-1 in project-
 Constraints (operator): no fees (UK Biobank out); no institution (ABCD out). The operator does any account or agreement step. Nothing was downloaded, no account created, no form filled.
 Key: [OPENED] = official page or listing opened today (2026-10-10). UNVERIFIED = not opened or content not obtained; never read it as eligible.
 
+Update 2026-10-14: ds007026 checked and rejected (T1w at one session only). The Dallas Lifespan Brain Study (ds004856, CC0) has three T1w waves and perceived stress at waves 2 and 3; see project-docs/prereg/02c-DATA.md and the draft pre-registration 02c-dlbs-stress-hippocampus.md.
+
 ## Result first
 
 1. No dataset I checked today meets every constraint at once: free, open to an individual, repeated T1w at 2+ year intervals, and a stress or cortisol measure. This is an observed result of a partial search, not proof that none exists.
