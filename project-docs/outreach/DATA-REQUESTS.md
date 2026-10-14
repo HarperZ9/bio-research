@@ -163,4 +163,4 @@ Zain Dana Harper
 6. **LEMMA form "Organization" field.** It is required. Options: your sole-proprietor name, "Independent researcher", or "None". Make no claim of affiliation.
 7. **Whether to send the LEMMA email at all.** The standard form already offers LIDE3_BA for 2017 and 2021, so the email is only needed for license or accuracy questions.
 8. **Data handling.** Agreeing to a data-use agreement may restrict publishing coordinates or sharing derived maps. Read any agreement before committing to share code that embeds the data.
-9. **Brief 06 error to fix.** The brief says the expanded-use form is needed for extra years. The main page offers 2021 directly; only the expanded-use page says "1986-2017". Low stakes, but the brief should note the conflict.
+9. **Brief 06 error to fix.** The brief says the expanded-use form is needed for extra years. The main page offers 2021 directly; only the expanded-use page says "1986-2017". Low stakes, but the brief should note the conflict. Fixed 2026-10-14 in the brief 06 data table.
