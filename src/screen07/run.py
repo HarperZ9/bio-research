@@ -1,7 +1,7 @@
 """Run the pre-registered project 07 screen (project-docs/prereg/07-*.md).
 
 Usage (from the src/ directory):
-    python -m screen07.run --data H:/bio-data/screen07 --repo C:/dev/bio-research
+    python -m screen07.run --data /path/to/screen07-data --repo .
 """
 from __future__ import annotations
 

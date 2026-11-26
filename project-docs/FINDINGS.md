@@ -105,7 +105,7 @@ Receipts.
 - Data receipts (URLs, bytes, SHA-256): project-docs/prereg/07-DATA.md. Data live under
   H:\bio-data\screen07, not in the repo.
 - Code: src/screen07/ (Python 3.12, numpy/scipy/pandas). Run from src/:
-  `python -m screen07.run --data H:/bio-data/screen07 --repo C:/dev/bio-research`.
+  `python -m screen07.run --data /path/to/screen07-data --repo .`.
   Output: project-docs/prereg/07-results/07-results.json, per-set M gene tables, PCA plots.
 - Test: mean moderated t of M vs 10,000 expression-matched random sets (20 bins, seed 7);
   leave-one-gene-out; 2,000 within-strata label permutations of mean t(M) minus mean t(all).
