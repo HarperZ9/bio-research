@@ -1,0 +1,23 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Zain Dana Harper
+
+Text: CC BY 4.0. Code: MIT.
+
+This licence covers the written research briefs, preregistrations, and prose
+notes in this repository (`project-docs/**/*.md`).
+
+You may share and adapt these works for any purpose, commercial use
+included. You must give appropriate credit, link to the licence, and say
+whether you made changes. Credit a work as:
+
+    Zain Dana Harper, <title of the brief or note> (2026).
+    https://github.com/HarperZ9/bio-research
+    Licensed under CC BY 4.0.
+
+Licence summary: https://creativecommons.org/licenses/by/4.0/
+Full legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Quoted material and third-party datasets stay under their owners' terms.
+Everything else in this repository, including all source code and scripts,
+is licensed under the MIT License in LICENSE.
